@@ -1,31 +1,31 @@
 
 
-# Generate Custom OpenGraph Image for SatsTerminal
+# Generate an Exceptional OpenGraph Image for SatsTerminal
 
 ## Overview
-Create a branded OpenGraph image (1200x630px) for SatsTerminal and update `index.html` to reference it, replacing the placeholder Lovable OG image for professional social sharing on Twitter, LinkedIn, Facebook, etc.
+Replace the current AI-generated OG image with a striking, premium-quality 1200x630px image that matches the SatsTerminal brand identity shown in the uploaded screenshot.
 
-## Approach
-Use the Lovable AI image generation API (Nano banana pro model) to generate a high-quality 1200x630 OG image featuring:
-- Dark background matching the brand palette (#1a1a2e / dark theme)
-- Orange lightning bolt icon (matching the favicon)
-- "SatsTerminal" brand name in bold
-- Tagline: "Bitcoin Payment Infrastructure"
-- Clean, professional fintech aesthetic
+## Design Direction
+The new image will feature:
+- **Deep dark background** (#0a0a14 to #1a1a2e gradient) with a subtle radial orange glow emanating from the center
+- **Large, centered orange rounded-square icon** with the white lightning bolt (matching the favicon/logo style from the screenshot)
+- **"SatsTerminal"** in bold Space Grotesk font below the icon
+- **"Bitcoin Payment Infrastructure"** as a refined subtitle in lighter text
+- Subtle grid or noise texture overlay for depth
+- A soft orange ambient light halo behind the icon for a premium fintech feel
 
-The generated image will be saved to `public/og-image.png`.
+The goal: something that looks hand-crafted and premium when shared on Twitter/LinkedIn -- not generic AI art.
 
 ## Changes
 
 | File | Change |
 |------|--------|
-| `public/og-image.png` | New file -- AI-generated branded OG image (1200x630) |
-| `index.html` | Update `og:image` and `twitter:image` URLs from the Lovable placeholder to `/og-image.png` |
+| `public/og-image.png` | Replace with a new, higher-quality AI-generated OG image using the Nano banana pro model with a detailed, specific prompt |
+
+No other files need changes -- `index.html` already references `/og-image.png`.
 
 ## Technical Details
-- OG image dimensions: 1200x630px (standard for social platforms)
-- Format: PNG (universally supported by social crawlers)
-- Both `og:image` and `twitter:image` meta tags will point to the same asset
-- The image URL will use a relative path; once published, it will resolve to the production domain automatically
+- Will use the `google/gemini-3-pro-image-preview` model (higher quality) with a very specific prompt describing exact colors, layout, typography, and composition
+- Dimensions: 1200x630px (standard OG format)
+- The prompt will emphasize: minimal design, dark fintech aesthetic, centered logo composition, orange (#f97316) accent color, and clean sans-serif typography
 
-No dependencies added. Two files affected.
