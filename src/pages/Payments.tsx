@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, parseISO } from "date-fns";
-import { CalendarIcon, X, Bitcoin, Hash, TrendingUp, Download } from "lucide-react";
+import { CalendarIcon, X, Bitcoin, Hash, TrendingUp, Download, Search } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import { invoices, paymentVolume, formatSats, formatBtc } from "@/data/mockDashboard";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ export default function Payments() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "refunded">("all");
   const [dateFilter, setDateFilter] = useState<Date | undefined>();
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
 
   const paymentInvoices = useMemo(
@@ -38,6 +40,10 @@ export default function Payments() {
 
   const filtered = useMemo(() => {
     let list = paymentInvoices;
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter((inv) => inv.customer.toLowerCase().includes(q) || inv.id.toLowerCase().includes(q));
+    }
     if (statusFilter !== "all") list = list.filter((inv) => inv.status === statusFilter);
     if (dateFilter) {
       list = list.filter((inv) => {
@@ -46,7 +52,7 @@ export default function Payments() {
       });
     }
     return list;
-  }, [paymentInvoices, statusFilter, dateFilter]);
+  }, [paymentInvoices, statusFilter, dateFilter, search]);
 
   const stats = useMemo(() => {
     const totalReceived = paymentInvoices.reduce((s, inv) => s + inv.amountPaidSats, 0);
@@ -61,6 +67,7 @@ export default function Payments() {
   const clearFilters = () => {
     setStatusFilter("all");
     setDateFilter(undefined);
+    setSearch("");
     setPage(0);
   };
 
@@ -88,7 +95,7 @@ export default function Payments() {
     });
   };
 
-  const hasFilters = statusFilter !== "all" || dateFilter !== undefined;
+  const hasFilters = statusFilter !== "all" || dateFilter !== undefined || search !== "";
 
   return (
     <div className="space-y-6">
@@ -164,6 +171,15 @@ export default function Payments() {
       >
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
+          <div className="relative w-[220px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by customer or ID..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              className="pl-9"
+            />
+          </div>
           <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as any); setPage(0); }}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Status" />
