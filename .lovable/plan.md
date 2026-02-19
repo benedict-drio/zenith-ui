@@ -1,70 +1,137 @@
 
+# Enterprise-Grade UI/UX Polish -- Audit and Remediation Plan
 
-# Accessibility Improvements
+## Current Quality Assessment
 
-## Overview
-Add four accessibility enhancements across the application: skip navigation links, visible focus outlines on all interactive elements, ARIA labels on icon-only buttons, and reduced motion support for users who prefer it.
+The application is already strong: consistent design tokens, glass-card design language, responsive layouts, accessibility (skip links, focus outlines, ARIA labels, reduced motion), mobile bottom nav, and well-structured components. However, a true enterprise-grade product requires attention to the following gaps.
 
-## Changes
+---
 
-### 1. Skip Link -- `src/index.css` + Layout files
+## Issues Found and Proposed Fixes
 
-Add a visually-hidden "Skip to main content" link that becomes visible on focus, allowing keyboard users to bypass navigation.
+### 1. Loading and Error States Are Missing
 
-- Add a `.skip-link` CSS class: visually hidden by default, slides into view on `:focus` with a high z-index
-- Add the skip link in both `DashboardLayout.tsx` (dashboard pages) and `Index.tsx` (landing page)
-- The `<main>` element in `DashboardLayout.tsx` gets `id="main-content"`; the landing page's wrapper div gets the same ID
+Currently, every page renders instantly from mock data with no loading skeletons, error boundaries, or empty states with illustrations. An enterprise app must gracefully handle all three states.
 
-### 2. Focus Outlines -- `src/index.css`
+**Fix:**
+- Add a reusable `<Skeleton>` loading pattern to `StatsCards`, `RevenueChart`, and all table views (Dashboard, Invoices, Payments, Refunds) using the existing `skeleton.tsx` component
+- Wrap the `DashboardLayout` outlet in a React Error Boundary component that catches render errors and shows a branded error screen with a "Try Again" button
+- Add illustrated empty states (SVG + text) to all table views when filtered results return zero rows, replacing the plain text "No transactions match"
 
-Add a global focus-visible style using a 2px orange (`hsl(25 95% 53%)`) outline on all interactive elements:
+### 2. 404 Page Is Unstyled and Off-Brand
 
-- Target `a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])` with `:focus-visible`
-- Apply `outline: 2px solid hsl(25 95% 53%); outline-offset: 2px;`
-- Override the existing `ring` styles from shadcn/ui button variants to use the orange ring instead, or layer it so both work together
-- Only shows on keyboard navigation (`:focus-visible`), not mouse clicks
+The `NotFound.tsx` page uses a generic `bg-muted` layout with no brand identity, no illustration, and no navigation back to the dashboard.
 
-### 3. ARIA Labels -- Multiple component files
+**Fix:**
+- Redesign `NotFound.tsx` with the gradient-dark-glow background, an SVG illustration, the SatsTerminal branding, and links to both `/` and `/dashboard`
 
-Add `aria-label` attributes to every icon-only button that currently lacks one:
+### 3. Tables Lack Row-Level Keyboard Navigation
 
-| File | Element | Label |
-|------|---------|-------|
-| `NotificationDropdown.tsx` | Bell button | "Notifications" |
-| `DashboardLayout.tsx` | Wallet button (mobile, icon-only) | "Connect Wallet" |
-| `Navbar.tsx` | Mobile menu toggle | "Open menu" / "Close menu" |
-| `Navbar.tsx` | Logo button | "SatsTerminal home" |
-| `DashboardSidebar.tsx` | Logo NavLink | "SatsTerminal dashboard" |
-| `MobileBottomNav.tsx` | Already has `aria-label` -- no change needed |
-| `FloatingActionButton.tsx` | Already has `aria-label` -- no change needed |
-| `ThemeToggle.tsx` | Already has `aria-label` -- no change needed |
+While focus outlines and ARIA labels are in place, the data tables (Invoices, Payments, Refunds) have clickable rows but no keyboard interaction -- users cannot Tab into individual rows or press Enter to open them.
 
-### 4. Reduced Motion -- `src/index.css` + Component updates
+**Fix:**
+- Add `tabIndex={0}`, `role="link"`, `onKeyDown` (Enter/Space to navigate), and proper `aria-label` to each `TableRow` that is clickable
 
-Respect `prefers-reduced-motion: reduce` for users who have it enabled:
+### 4. Dropdown Menu Buttons Missing ARIA Labels
 
-- Add a `@media (prefers-reduced-motion: reduce)` block in `index.css` that disables all custom animations (bitcoin-pulse, shimmer, float, draw-check, glow-pulse) by setting `animation: none !important` and `transition-duration: 0.01ms !important`
-- In `DashboardLayout.tsx`, use framer-motion's `useReducedMotion()` hook to conditionally skip page transition animations (set `initial`/`animate`/`exit` to empty objects)
-- In `FloatingActionButton.tsx`, skip the scale-in spring animation when reduced motion is preferred
+The "more actions" button (`MoreHorizontal` icon) on each invoice row in `Invoices.tsx` has no `aria-label`.
+
+**Fix:**
+- Add `aria-label="Actions for invoice {inv.id}"` to the trigger button
+
+### 5. No Breadcrumb Navigation in Detail Pages
+
+`InvoiceDetail.tsx` uses a custom "Back to Invoices" button but lacks structured breadcrumb navigation that enterprises expect for wayfinding.
+
+**Fix:**
+- Add a `<Breadcrumb>` component (already available via shadcn) to `InvoiceDetail.tsx` showing Dashboard > Invoices > INV-001
+
+### 6. Form Validation Is Incomplete
+
+`CreateInvoiceSheet.tsx` has no form validation -- it only checks `!satsNum`. No max amount validation, no character limits, no error messages shown inline.
+
+**Fix:**
+- Add Zod schema validation (like the Contact form already uses) with proper error messages for amount (min/max), memo (max length), and reference (max length)
+- Show inline error text below each field
+
+### 7. Charts Have Hardcoded Dark-Theme Colors
+
+`RevenueChart.tsx` uses hardcoded `hsl(220 16% 14%)` for grid lines, which breaks in light mode (dark grid on light background).
+
+**Fix:**
+- Replace hardcoded HSL values with `hsl(var(--border))` and `hsl(var(--muted-foreground))` CSS variables so charts adapt to both themes
+
+### 8. Progress Ring in InvoiceDetail Has Hardcoded Colors
+
+The SVG circle in `InvoiceDetail.tsx` uses `hsl(220 16% 14%)` for the background track, which is invisible in light mode.
+
+**Fix:**
+- Use `hsl(var(--border))` for the track and `hsl(var(--primary))` for the fill (which is already correct)
+
+### 9. Missing Page Titles (document.title)
+
+No page sets `document.title`, so the browser tab always shows the generic HTML title. Enterprise apps need per-page titles for usability and SEO.
+
+**Fix:**
+- Add a `useDocumentTitle` hook and apply it in every page: "Dashboard | SatsTerminal", "Invoices | SatsTerminal", etc.
+
+### 10. Notification Items Are Not Keyboard-Accessible
+
+Notification items in `NotificationDropdown.tsx` use `<div onClick>` instead of buttons, making them inaccessible via keyboard.
+
+**Fix:**
+- Convert notification items to `<button>` elements with proper roles
+
+### 11. Pricing Section Has No CTA Buttons
+
+The pricing cards show features but have no "Get Started" or "Contact Sales" buttons -- a critical enterprise conversion gap.
+
+**Fix:**
+- Add a CTA button to each pricing card ("Start Free" for Starter, "Get Started" for Pro)
+
+### 12. Footer Links Are All Dead (`href="#"`)
+
+Every footer link points to `#` with no functionality.
+
+**Fix:**
+- Link Product and Developer items to appropriate sections or routes (e.g., "Dashboard" to `/dashboard`, "Pricing" to `/#pricing`)
+- Use `react-router-dom` `Link` for internal routes
 
 ---
 
 ## Technical Details
 
-### Files Modified
-1. **`src/index.css`** -- add skip-link styles, global focus-visible outlines, and `prefers-reduced-motion` media query
-2. **`src/components/dashboard/DashboardLayout.tsx`** -- add skip link, `id="main-content"` on main, reduced motion for page transitions
-3. **`src/pages/Index.tsx`** -- add skip link and `id="main-content"` on wrapper
-4. **`src/components/landing/Navbar.tsx`** -- add aria-labels to logo and mobile menu toggle
-5. **`src/components/dashboard/NotificationDropdown.tsx`** -- add `aria-label="Notifications"` to bell button
-6. **`src/components/dashboard/DashboardSidebar.tsx`** -- add `aria-label` to logo link
-7. **`src/components/dashboard/FloatingActionButton.tsx`** -- respect reduced motion for spring animation
+### Files to Create
+- `src/components/dashboard/ErrorBoundary.tsx` -- React error boundary for the dashboard
+- `src/components/dashboard/TableEmptyState.tsx` -- Reusable illustrated empty state for tables
+- `src/hooks/useDocumentTitle.ts` -- Custom hook for setting page titles
+
+### Files to Modify
+- `src/pages/NotFound.tsx` -- Full redesign with branding
+- `src/pages/Dashboard.tsx` -- Add document title, loading skeleton pattern
+- `src/pages/Invoices.tsx` -- Add document title, keyboard-accessible rows, ARIA on action buttons, empty state
+- `src/pages/Payments.tsx` -- Add document title, keyboard-accessible rows, empty state
+- `src/pages/Refunds.tsx` -- Add document title, keyboard-accessible rows, empty state
+- `src/pages/InvoiceDetail.tsx` -- Add document title, breadcrumbs, fix hardcoded SVG colors
+- `src/pages/Settings.tsx` -- Add document title
+- `src/pages/Index.tsx` -- Add document title
+- `src/pages/PaymentDemo.tsx` -- Add document title
+- `src/components/dashboard/CreateInvoiceSheet.tsx` -- Add Zod validation with inline errors
+- `src/components/dashboard/RevenueChart.tsx` -- Replace hardcoded colors with CSS variables
+- `src/components/dashboard/NotificationDropdown.tsx` -- Convert div items to buttons
+- `src/components/dashboard/DashboardLayout.tsx` -- Wrap outlet in ErrorBoundary
+- `src/components/landing/PricingSection.tsx` -- Add CTA buttons
+- `src/components/landing/Footer.tsx` -- Fix dead links with real routes
 
 ### Dependencies
-No new dependencies. `framer-motion` already provides `useReducedMotion()`.
+No new dependencies needed. Uses existing `@/components/ui/breadcrumb`, `@/components/ui/skeleton`, `zod`, `react-hook-form`, and `@hookform/resolvers` already installed.
 
-### Key Patterns
-- Focus outlines use `:focus-visible` (not `:focus`) so they only appear during keyboard navigation
-- The orange color matches the brand primary (`hsl(25 95% 53%)`) for visual consistency
-- Skip link follows WCAG best practice: first focusable element in DOM, jumps to `#main-content`
-- Reduced motion uses both CSS (`prefers-reduced-motion`) and JS (`useReducedMotion`) to cover all animation types
+### Priority Order
+1. Chart/SVG color fixes (visual bugs in light mode)
+2. Form validation on CreateInvoiceSheet
+3. Keyboard-accessible table rows and notification items
+4. Document titles
+5. Error boundary + empty states + loading skeletons
+6. 404 page redesign
+7. Breadcrumbs on InvoiceDetail
+8. Pricing CTAs + footer link fixes
