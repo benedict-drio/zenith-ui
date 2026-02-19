@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { FAQSection } from "@/components/landing/FAQSection";
+import { ContactSection } from "@/components/landing/ContactSection";
 import { SocialProof } from "@/components/landing/SocialProof";
 import { WidgetShowcase } from "@/components/landing/WidgetShowcase";
 import { Footer } from "@/components/landing/Footer";
@@ -15,6 +16,7 @@ const Index = () => {
       <FeaturesGrid />
       <PricingSection />
       <FAQSection />
+      <ContactSection />
       <SocialProof />
       <WidgetShowcase />
       <Footer />
