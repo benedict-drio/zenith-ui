@@ -329,7 +329,7 @@ export default function Payments() {
               {paginated.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6}>
-                    <TableEmptyState title="No transactions found" description="Try adjusting your filters or search query." />
+                    <TableEmptyState variant="payments" title="No transactions found" description="Try adjusting your filters or search query." />
                   </TableCell>
                 </TableRow>
               ) : (

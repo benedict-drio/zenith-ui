@@ -8,6 +8,7 @@ import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import { CreateInvoiceSheet } from "@/components/dashboard/CreateInvoiceSheet";
 import { Button } from "@/components/ui/button";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { TableEmptyState } from "@/components/dashboard/TableEmptyState";
 import {
   Table,
   TableBody,
@@ -69,7 +70,13 @@ export default function Invoices() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pageInvoices.map((inv) => (
+            {pageInvoices.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <TableEmptyState variant="invoices" title="No invoices found" description="Create your first invoice to get started." />
+                </TableCell>
+              </TableRow>
+            ) : pageInvoices.map((inv) => (
               <TableRow
                 key={inv.id}
                 tabIndex={0}
@@ -121,6 +128,7 @@ export default function Invoices() {
                 </TableCell>
               </TableRow>
             ))}
+            )
           </TableBody>
         </Table>
 
