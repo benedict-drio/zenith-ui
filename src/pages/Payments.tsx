@@ -13,7 +13,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
-import { invoices, paymentVolume, formatSats, formatBtc } from "@/data/mockDashboard";
+import { PaymentDetailDialog } from "@/components/dashboard/PaymentDetailDialog";
+import { invoices, paymentVolume, formatSats, formatBtc, type Invoice } from "@/data/mockDashboard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -28,6 +29,7 @@ const chartConfig: ChartConfig = {
 
 export default function Payments() {
   const navigate = useNavigate();
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "refunded">("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
@@ -312,7 +314,7 @@ export default function Payments() {
                   <TableRow
                     key={inv.id}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => navigate(`/dashboard/invoices/${inv.id}`)}
+                    onClick={() => setSelectedInvoice(inv)}
                   >
                     <TableCell className="font-mono text-sm">{inv.id}</TableCell>
                     <TableCell>{inv.customer}</TableCell>
@@ -348,6 +350,12 @@ export default function Payments() {
           </div>
         )}
       </motion.div>
+
+      <PaymentDetailDialog
+        invoice={selectedInvoice}
+        open={!!selectedInvoice}
+        onOpenChange={(open) => !open && setSelectedInvoice(null)}
+      />
     </div>
   );
 }
