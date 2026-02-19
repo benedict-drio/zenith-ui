@@ -247,8 +247,22 @@ export const invoices: Invoice[] = [
   },
 ];
 
+export const paymentVolume = [
+  { date: "Feb 13", volume: 0 },
+  { date: "Feb 14", volume: 2000000 },
+  { date: "Feb 15", volume: 420000 },
+  { date: "Feb 16", volume: 2300000 },
+  { date: "Feb 17", volume: 320000 },
+  { date: "Feb 18", volume: 1150000 },
+  { date: "Feb 19", volume: 250000 },
+];
+
 export function formatSats(sats: number): string {
   return sats.toLocaleString();
+}
+
+export function formatBtc(sats: number): string {
+  return `${(sats / 100_000_000).toFixed(4)} BTC`;
 }
 
 export function satsToBtc(sats: number): string {
