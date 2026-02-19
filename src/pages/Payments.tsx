@@ -20,6 +20,26 @@ import { toast } from "sonner";
 
 const ROWS_PER_PAGE = 8;
 
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function HighlightText({ text, query }: { text: string; query: string }) {
+  if (!query.trim()) return <>{text}</>;
+  const escaped = escapeRegex(query);
+  const regex = new RegExp(`(${escaped})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === query.toLowerCase()
+          ? <mark key={i} className="bg-primary/20 text-primary rounded-sm px-0.5">{part}</mark>
+          : part
+      )}
+    </>
+  );
+}
+
 const chartConfig: ChartConfig = {
   volume: {
     label: "Volume (sats)",
@@ -316,8 +336,8 @@ export default function Payments() {
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => setSelectedInvoice(inv)}
                   >
-                    <TableCell className="font-mono text-sm">{inv.id}</TableCell>
-                    <TableCell>{inv.customer}</TableCell>
+                    <TableCell className="font-mono text-sm"><HighlightText text={inv.id} query={search} /></TableCell>
+                    <TableCell><HighlightText text={inv.customer} query={search} /></TableCell>
                     <TableCell className="text-right font-mono text-sm">{formatSats(inv.amountPaidSats)}</TableCell>
                     <TableCell><InvoiceStatusBadge status={inv.status} /></TableCell>
                     <TableCell className="text-sm text-muted-foreground">
