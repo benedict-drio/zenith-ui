@@ -1,31 +1,19 @@
 
 
-# Generate an Exceptional OpenGraph Image for SatsTerminal
+# Fix OG Image Subtitle Font
 
-## Overview
-Replace the current AI-generated OG image with a striking, premium-quality 1200x630px image that matches the SatsTerminal brand identity shown in the uploaded screenshot.
+## Problem
+The current OG image subtitle ("Bitcoin Payment Infrastructure") appears slightly italic. It needs to be bolder and use a clean, non-italic sans-serif font.
 
-## Design Direction
-The new image will feature:
-- **Deep dark background** (#0a0a14 to #1a1a2e gradient) with a subtle radial orange glow emanating from the center
-- **Large, centered orange rounded-square icon** with the white lightning bolt (matching the favicon/logo style from the screenshot)
-- **"SatsTerminal"** in bold Space Grotesk font below the icon
-- **"Bitcoin Payment Infrastructure"** as a refined subtitle in lighter text
-- Subtle grid or noise texture overlay for depth
-- A soft orange ambient light halo behind the icon for a premium fintech feel
-
-The goal: something that looks hand-crafted and premium when shared on Twitter/LinkedIn -- not generic AI art.
-
-## Changes
+## Change
 
 | File | Change |
 |------|--------|
-| `public/og-image.png` | Replace with a new, higher-quality AI-generated OG image using the Nano banana pro model with a detailed, specific prompt |
+| `public/og-image.png` | Regenerate using the `google/gemini-3-pro-image-preview` model, editing the existing image with an explicit instruction to make the subtitle text bolder, upright (non-italic), and in a clean geometric sans-serif font like Inter or Helvetica |
 
-No other files need changes -- `index.html` already references `/og-image.png`.
+No other files affected -- `index.html` already references `/og-image.png`.
 
 ## Technical Details
-- Will use the `google/gemini-3-pro-image-preview` model (higher quality) with a very specific prompt describing exact colors, layout, typography, and composition
-- Dimensions: 1200x630px (standard OG format)
-- The prompt will emphasize: minimal design, dark fintech aesthetic, centered logo composition, orange (#f97316) accent color, and clean sans-serif typography
+- Will use the image-edit workflow: pass the current `public/og-image.png` as input along with a text instruction specifying "Make the subtitle 'Bitcoin Payment Infrastructure' bolder, completely upright (not italic), and in a clean geometric sans-serif typeface. Keep everything else exactly the same."
+- Output saved back to `public/og-image.png`
 
