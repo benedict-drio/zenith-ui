@@ -7,12 +7,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { FloatingActionButton } from "./FloatingActionButton";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 export function DashboardLayout() {
   const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
   return (
     <SidebarProvider>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <div className="min-h-screen flex w-full">
         <DashboardSidebar />
         <div className="flex-1 flex flex-col min-w-0">
@@ -29,20 +31,20 @@ export function DashboardLayout() {
               <div className="min-w-[44px] min-h-[44px] flex items-center justify-center">
                 <NotificationDropdown />
               </div>
-              <Button variant="outline" size="sm" className="gap-2 min-h-[44px]">
+              <Button variant="outline" size="sm" className="gap-2 min-h-[44px]" aria-label="Connect Wallet">
                 <Wallet className="w-4 h-4" />
                 <span className="hidden sm:inline">Connect Wallet</span>
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-4 md:p-6 pb-20 md:pb-6">
+          <main id="main-content" className="flex-1 overflow-auto p-4 md:p-6 pb-20 md:pb-6">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                initial={shouldReduceMotion ? {} : { opacity: 0, y: 8 }}
+                animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                exit={shouldReduceMotion ? {} : { opacity: 0, y: -8 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
               >
                 <Outlet />
               </motion.div>

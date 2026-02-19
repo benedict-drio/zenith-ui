@@ -31,7 +31,7 @@ export function NotificationDropdown() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative w-9 h-9">
+        <Button variant="ghost" size="icon" className="relative w-9 h-9" aria-label="Notifications">
           <Bell className="w-4 h-4" />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">

@@ -37,7 +37,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon" className="hidden md:flex">
       <SidebarHeader className="p-4">
-        <NavLink to="/dashboard" className="flex items-center gap-2">
+        <NavLink to="/dashboard" className="flex items-center gap-2" aria-label="SatsTerminal dashboard">
           <div className="w-8 h-8 rounded-lg gradient-bitcoin flex items-center justify-center shrink-0">
             <Zap className="w-4 h-4 text-primary-foreground" />
           </div>

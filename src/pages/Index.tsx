@@ -10,7 +10,8 @@ import { Footer } from "@/components/landing/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" id="main-content">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Navbar />
       <HeroSection />
       <FeaturesGrid />

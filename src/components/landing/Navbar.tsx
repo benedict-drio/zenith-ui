@@ -57,6 +57,7 @@ export function Navbar() {
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-2.5"
+          aria-label="SatsTerminal home"
         >
           <div className="w-8 h-8 rounded-lg gradient-bitcoin flex items-center justify-center">
             <Zap className="w-4 h-4 text-primary-foreground" />
@@ -95,6 +96,7 @@ export function Navbar() {
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden text-foreground"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
