@@ -6,6 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import PaymentDemo from "./pages/PaymentDemo";
 import NotFound from "./pages/NotFound";
+import { DashboardLayout } from "./components/dashboard/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
+import Invoices from "./pages/Invoices";
+import InvoiceDetail from "./pages/InvoiceDetail";
+import Payments from "./pages/Payments";
+import Refunds from "./pages/Refunds";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +25,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/pay" element={<PaymentDemo />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="invoices/:id" element={<InvoiceDetail />} />
+            <Route path="payments" element={<Payments />} />
+            <Route path="refunds" element={<Refunds />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
