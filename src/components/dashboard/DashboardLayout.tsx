@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function DashboardLayout() {
   return (
@@ -14,6 +15,7 @@ export function DashboardLayout() {
             <div className="flex items-center gap-3">
               <SidebarTrigger />
             </div>
+            <ThemeToggle />
             <Button variant="outline" size="sm" className="gap-2">
               <Wallet className="w-4 h-4" />
               <span className="hidden sm:inline">Connect Wallet</span>

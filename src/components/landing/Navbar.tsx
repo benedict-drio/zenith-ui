@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -76,7 +77,9 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Desktop CTA */}
+        {/* Theme toggle + Desktop CTA */}
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
         <button
           onClick={() => navigate("/dashboard")}
           className="hidden md:flex items-center gap-2 px-5 py-2 rounded-lg gradient-bitcoin text-primary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-glow"
@@ -84,6 +87,7 @@ export function Navbar() {
           Get Started
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
+        </div>
 
         {/* Mobile toggle */}
         <button
@@ -114,6 +118,10 @@ export function Navbar() {
                   {link.label}
                 </button>
               ))}
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-muted-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
               <button
                 onClick={() => { setMobileOpen(false); navigate("/dashboard"); }}
                 className="mt-2 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg gradient-bitcoin text-primary-foreground text-sm font-semibold shadow-glow"
