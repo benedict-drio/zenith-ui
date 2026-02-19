@@ -35,7 +35,7 @@ const navItems = [
 
 export function DashboardSidebar() {
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="hidden md:flex">
       <SidebarHeader className="p-4">
         <NavLink to="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg gradient-bitcoin flex items-center justify-center shrink-0">
