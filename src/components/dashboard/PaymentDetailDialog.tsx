@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink, Copy, Check } from "lucide-react";
+import { ExternalLink, Copy, Check, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
+import { RefundDialog } from "@/components/dashboard/RefundDialog";
 import type { Invoice } from "@/data/mockDashboard";
 import { formatSats, satsToBtc } from "@/data/mockDashboard";
 
@@ -52,10 +53,12 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 
 export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDetailDialogProps) {
   const navigate = useNavigate();
+  const [refundOpen, setRefundOpen] = useState(false);
 
   if (!invoice) return null;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -125,6 +128,17 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
+          {invoice.status === "paid" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10 mr-auto"
+              onClick={() => setRefundOpen(true)}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              Issue Refund
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -142,5 +156,13 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <RefundDialog
+      open={refundOpen}
+      onOpenChange={setRefundOpen}
+      invoiceId={invoice.id}
+      amountSats={invoice.amountSats}
+    />
+    </>
   );
 }
