@@ -22,6 +22,12 @@ export function NotificationDropdown() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -55,11 +61,12 @@ export function NotificationDropdown() {
                 const config = typeConfig[notif.type];
                 const Icon = config.icon;
                 return (
-                  <div
-                    key={notif.id}
-                    className={cn(
-                      "flex gap-3 px-4 py-3 transition-colors",
-                      !notif.read && "bg-accent/50"
+                    <div
+                      key={notif.id}
+                      onClick={() => !notif.read && markAsRead(notif.id)}
+                      className={cn(
+                        "flex gap-3 px-4 py-3 transition-colors",
+                        !notif.read && "bg-accent/50 cursor-pointer"
                     )}
                   >
                     <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", config.className)} />
