@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { FloatingActionButton } from "./FloatingActionButton";
+import { ErrorBoundary } from "./ErrorBoundary";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 export function DashboardLayout() {
@@ -38,17 +39,19 @@ export function DashboardLayout() {
             </div>
           </header>
           <main id="main-content" className="flex-1 overflow-auto p-4 md:p-6 pb-20 md:pb-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={shouldReduceMotion ? {} : { opacity: 0, y: 8 }}
-                animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? {} : { opacity: 0, y: -8 }}
-                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
+            <ErrorBoundary>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  initial={shouldReduceMotion ? {} : { opacity: 0, y: 8 }}
+                  animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                  exit={shouldReduceMotion ? {} : { opacity: 0, y: -8 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
+            </ErrorBoundary>
           </main>
         </div>
         <MobileBottomNav />

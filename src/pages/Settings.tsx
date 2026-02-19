@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { Settings as SettingsIcon, Key, Webhook, Palette, Bell, Copy, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -291,6 +292,7 @@ function NotificationsTab() {
 
 // ─── Settings Page ───────────────────────────────────────────────
 export default function Settings() {
+  useDocumentTitle("Settings");
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center gap-3">

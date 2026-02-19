@@ -7,6 +7,7 @@ import { invoices, formatSats } from "@/data/mockDashboard";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import { CreateInvoiceSheet } from "@/components/dashboard/CreateInvoiceSheet";
 import { Button } from "@/components/ui/button";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   Table,
   TableBody,
@@ -26,6 +27,7 @@ const PAGE_SIZE = 10;
 
 export default function Invoices() {
   const navigate = useNavigate();
+  useDocumentTitle("Invoices");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [page, setPage] = useState(0);
 
@@ -68,7 +70,13 @@ export default function Invoices() {
           </TableHeader>
           <TableBody>
             {pageInvoices.map((inv) => (
-              <TableRow key={inv.id}>
+              <TableRow
+                key={inv.id}
+                tabIndex={0}
+                role="link"
+                aria-label={`Invoice ${inv.id} — ${formatSats(inv.amountSats)} sats — ${inv.status}`}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(`/dashboard/invoices/${inv.id}`); } }}
+              >
                 <TableCell className="font-mono text-sm">{inv.id}</TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className="text-sm">{inv.customer}</div>
@@ -84,7 +92,7 @@ export default function Invoices() {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Actions for invoice ${inv.id}`}>
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>

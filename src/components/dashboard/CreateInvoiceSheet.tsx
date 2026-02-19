@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { z } from "zod";
 import {
   Sheet,
   SheetContent,
@@ -25,6 +26,14 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
+const invoiceSchema = z.object({
+  amount: z.number({ invalid_type_error: "Amount is required" }).min(1, "Minimum 1 sat").max(2_100_000_000_000_000, "Exceeds max supply"),
+  memo: z.string().max(200, "Memo must be under 200 characters").optional(),
+  reference: z.string().max(50, "Reference must be under 50 characters").optional(),
+});
+
+type FieldErrors = Partial<Record<"amount" | "memo" | "reference", string>>;
+
 export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
@@ -33,13 +42,33 @@ export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
   const [allowOverpayment, setAllowOverpayment] = useState(false);
   const [expiry, setExpiry] = useState("60");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const satsNum = parseInt(amount) || 0;
   const btcVal = (satsNum / 100_000_000).toFixed(8);
   const usdVal = ((satsNum / 100_000_000) * 97500).toFixed(2);
 
+  const validate = (): boolean => {
+    const result = invoiceSchema.safeParse({
+      amount: satsNum || undefined,
+      memo: memo || undefined,
+      reference: reference || undefined,
+    });
+    if (!result.success) {
+      const fieldErrors: FieldErrors = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof FieldErrors;
+        if (!fieldErrors[field]) fieldErrors[field] = issue.message;
+      });
+      setErrors(fieldErrors);
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
+
   const handleCreate = () => {
-    if (!satsNum) return;
+    if (!validate()) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -49,6 +78,7 @@ export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
       setAmount("");
       setMemo("");
       setReference("");
+      setErrors({});
       onOpenChange(false);
     }, 1200);
   };
@@ -69,10 +99,11 @@ export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
               type="number"
               placeholder="250000"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="text-2xl font-display h-14 bg-secondary border-border"
+              onChange={(e) => { setAmount(e.target.value); if (errors.amount) setErrors((p) => ({ ...p, amount: undefined })); }}
+              className={`text-2xl font-display h-14 bg-secondary border-border ${errors.amount ? "border-destructive" : ""}`}
             />
-            {satsNum > 0 && (
+            {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
+            {satsNum > 0 && !errors.amount && (
               <div className="flex gap-3 text-xs text-muted-foreground">
                 <span>₿ {btcVal}</span>
                 <span>≈ ${usdVal} USD</span>
@@ -86,9 +117,12 @@ export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
             <Input
               placeholder="Payment for..."
               value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              className="bg-secondary border-border"
+              onChange={(e) => { setMemo(e.target.value); if (errors.memo) setErrors((p) => ({ ...p, memo: undefined })); }}
+              className={`bg-secondary border-border ${errors.memo ? "border-destructive" : ""}`}
+              maxLength={200}
             />
+            {errors.memo && <p className="text-xs text-destructive">{errors.memo}</p>}
+            <p className="text-xs text-muted-foreground text-right">{memo.length}/200</p>
           </div>
 
           {/* Reference */}
@@ -97,9 +131,11 @@ export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
             <Input
               placeholder="ORD-12345"
               value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              className="bg-secondary border-border"
+              onChange={(e) => { setReference(e.target.value); if (errors.reference) setErrors((p) => ({ ...p, reference: undefined })); }}
+              className={`bg-secondary border-border ${errors.reference ? "border-destructive" : ""}`}
+              maxLength={50}
             />
+            {errors.reference && <p className="text-xs text-destructive">{errors.reference}</p>}
           </div>
 
           {/* Toggles */}
@@ -138,7 +174,7 @@ export function CreateInvoiceSheet({ open, onOpenChange }: Props) {
             <Button
               className="flex-1 gradient-bitcoin text-primary-foreground"
               onClick={handleCreate}
-              disabled={!satsNum || loading}
+              disabled={loading}
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Invoice"}
             </Button>

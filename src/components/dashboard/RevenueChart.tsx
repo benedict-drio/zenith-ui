@@ -27,15 +27,15 @@ export function RevenueChart() {
               <stop offset="95%" stopColor="hsl(25 95% 53%)" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 16% 14%)" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
           <XAxis
             dataKey="date"
-            tick={{ fill: "hsl(220 10% 50%)", fontSize: 12 }}
+            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "hsl(220 10% 50%)", fontSize: 12 }}
+            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v) => `₿${v}`}

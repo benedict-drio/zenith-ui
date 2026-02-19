@@ -17,6 +17,8 @@ import { PaymentDetailDialog } from "@/components/dashboard/PaymentDetailDialog"
 import { invoices, paymentVolume, formatSats, formatBtc, type Invoice } from "@/data/mockDashboard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { TableEmptyState } from "@/components/dashboard/TableEmptyState";
 
 const ROWS_PER_PAGE = 8;
 
@@ -49,6 +51,7 @@ const chartConfig: ChartConfig = {
 
 export default function Payments() {
   const navigate = useNavigate();
+  useDocumentTitle("Payments");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "refunded">("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
@@ -325,8 +328,8 @@ export default function Payments() {
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    No transactions match the current filters.
+                  <TableCell colSpan={6}>
+                    <TableEmptyState title="No transactions found" description="Try adjusting your filters or search query." />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -335,6 +338,10 @@ export default function Payments() {
                     key={inv.id}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => setSelectedInvoice(inv)}
+                    tabIndex={0}
+                    role="link"
+                    aria-label={`Payment ${inv.id} — ${formatSats(inv.amountPaidSats)} sats — ${inv.status}`}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedInvoice(inv); } }}
                   >
                     <TableCell className="font-mono text-sm"><HighlightText text={inv.id} query={search} /></TableCell>
                     <TableCell><HighlightText text={inv.customer} query={search} /></TableCell>

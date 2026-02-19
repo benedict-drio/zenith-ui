@@ -4,6 +4,7 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import { invoices, formatSats } from "@/data/mockDashboard";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ const recentInvoices = invoices.slice(0, 5);
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  useDocumentTitle("Dashboard");
 
   return (
     <div className="space-y-6">
@@ -61,6 +63,10 @@ export default function Dashboard() {
                 key={inv.id}
                 className="cursor-pointer"
                 onClick={() => navigate(`/dashboard/invoices/${inv.id}`)}
+                tabIndex={0}
+                role="link"
+                aria-label={`Invoice ${inv.id} — ${formatSats(inv.amountSats)} sats — ${inv.status}`}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(`/dashboard/invoices/${inv.id}`); } }}
               >
                 <TableCell className="font-mono text-sm">{inv.id}</TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground">{inv.customer}</TableCell>

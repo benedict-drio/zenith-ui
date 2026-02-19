@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { PaymentWidget } from "@/components/payment/PaymentWidget";
 import { RotateCcw } from "lucide-react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const PaymentDemo = () => {
+  useDocumentTitle("Payment Demo");
   const [key, setKey] = useState(0);
 
   return (

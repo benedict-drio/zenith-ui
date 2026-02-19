@@ -1,11 +1,20 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, RotateCcw } from "lucide-react";
+import { ExternalLink, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { invoices, formatSats, satsToBtc } from "@/data/mockDashboard";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import { RefundDialog } from "@/components/dashboard/RefundDialog";
 import { Button } from "@/components/ui/button";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function InvoiceDetail() {
   const { id } = useParams();
@@ -13,6 +22,7 @@ export default function InvoiceDetail() {
   const [refundOpen, setRefundOpen] = useState(false);
 
   const invoice = invoices.find((inv) => inv.id === id);
+  useDocumentTitle(invoice ? `Invoice ${invoice.id}` : "Invoice Not Found");
 
   if (!invoice) {
     return (
@@ -32,13 +42,21 @@ export default function InvoiceDetail() {
   return (
     <div className="space-y-6 max-w-4xl">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <button
-          onClick={() => navigate("/dashboard/invoices")}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Invoices
-        </button>
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/invoices">Invoices</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{invoice.id}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </motion.div>
 
       {/* Header */}
@@ -111,13 +129,13 @@ export default function InvoiceDetail() {
               <h3 className="font-display font-semibold text-foreground mb-4">Payment Progress</h3>
               <div className="relative w-24 h-24">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(220 16% 14%)" strokeWidth="8" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--border))" strokeWidth="8" />
                   <circle
                     cx="50"
                     cy="50"
                     r="40"
                     fill="none"
-                    stroke="hsl(25 95% 53%)"
+                    stroke="hsl(var(--primary))"
                     strokeWidth="8"
                     strokeLinecap="round"
                     strokeDasharray={circumference}
