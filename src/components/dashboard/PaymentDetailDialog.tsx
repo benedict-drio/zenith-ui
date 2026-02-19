@@ -62,6 +62,9 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
       if (tag === "input" || tag === "textarea") return;
       if (e.key.toLowerCase() === "r" && invoice.status === "paid") {
         setRefundOpen(true);
+      } else if (e.key.toLowerCase() === "v") {
+        onOpenChange(false);
+        navigate(`/dashboard/invoices/${invoice.id}`);
       }
     };
     window.addEventListener("keydown", handler);
@@ -142,19 +145,27 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
 
         <DialogFooter className="gap-2 sm:gap-0">
           {invoice.status === "paid" && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                onClick={() => setRefundOpen(true)}
-              >
-                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                Issue Refund
-              </Button>
-              <span className="text-xs text-muted-foreground hidden sm:inline mr-auto">Press R to refund</span>
-            </>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10"
+              onClick={() => setRefundOpen(true)}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              Issue Refund
+            </Button>
           )}
+          <span className="text-xs text-muted-foreground hidden sm:flex items-center gap-2 mr-auto">
+            {invoice.status === "paid" && (
+              <>
+                <span><kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">R</kbd> Refund</span>
+                <span>·</span>
+              </>
+            )}
+            <span><kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">V</kbd> Details</span>
+            <span>·</span>
+            <span><kbd className="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]">Esc</kbd> Close</span>
+          </span>
           <Button
             variant="outline"
             size="sm"
