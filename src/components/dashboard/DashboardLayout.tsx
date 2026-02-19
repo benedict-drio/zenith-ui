@@ -1,11 +1,13 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AnimatePresence, motion } from "framer-motion";
 
 export function DashboardLayout() {
+  const location = useLocation();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -22,7 +24,17 @@ export function DashboardLayout() {
             </Button>
           </header>
           <main className="flex-1 overflow-auto p-4 md:p-6">
-            <Outlet />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
       </div>
