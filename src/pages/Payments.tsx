@@ -29,7 +29,8 @@ const chartConfig: ChartConfig = {
 export default function Payments() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "refunded">("all");
-  const [dateFilter, setDateFilter] = useState<Date | undefined>();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [sortKey, setSortKey] = useState<"amount" | "date" | "status" | null>(null);
@@ -47,10 +48,16 @@ export default function Payments() {
       list = list.filter((inv) => inv.customer.toLowerCase().includes(q) || inv.id.toLowerCase().includes(q) || (inv.memo && inv.memo.toLowerCase().includes(q)));
     }
     if (statusFilter !== "all") list = list.filter((inv) => inv.status === statusFilter);
-    if (dateFilter) {
+    if (dateFrom) {
       list = list.filter((inv) => {
         const d = parseISO(inv.createdAt);
-        return isSameDay(d, dateFilter) || isAfter(d, dateFilter);
+        return isSameDay(d, dateFrom) || isAfter(d, dateFrom);
+      });
+    }
+    if (dateTo) {
+      list = list.filter((inv) => {
+        const d = parseISO(inv.createdAt);
+        return isSameDay(d, dateTo) || !isAfter(d, dateTo);
       });
     }
     if (sortKey) {
@@ -63,7 +70,7 @@ export default function Payments() {
       });
     }
     return list;
-  }, [paymentInvoices, statusFilter, dateFilter, search, sortKey, sortDir]);
+  }, [paymentInvoices, statusFilter, dateFrom, dateTo, search, sortKey, sortDir]);
 
   const stats = useMemo(() => {
     const totalReceived = paymentInvoices.reduce((s, inv) => s + inv.amountPaidSats, 0);
@@ -93,7 +100,8 @@ export default function Payments() {
 
   const clearFilters = () => {
     setStatusFilter("all");
-    setDateFilter(undefined);
+    setDateFrom(undefined);
+    setDateTo(undefined);
     setSearch("");
     setSortKey(null);
     setSortDir("asc");
@@ -124,7 +132,7 @@ export default function Payments() {
     });
   };
 
-  const hasFilters = statusFilter !== "all" || dateFilter !== undefined || search !== "";
+  const hasFilters = statusFilter !== "all" || dateFrom !== undefined || dateTo !== undefined || search !== "";
 
   return (
     <div className="space-y-6">
@@ -224,17 +232,38 @@ export default function Payments() {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={cn("w-[180px] justify-start text-left font-normal", !dateFilter && "text-muted-foreground")}
+                className={cn("w-[160px] justify-start text-left font-normal", !dateFrom && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateFilter ? format(dateFilter, "PPP") : "Filter by date"}
+                {dateFrom ? format(dateFrom, "PP") : "Start date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={dateFilter}
-                onSelect={(d) => { setDateFilter(d); setPage(0); }}
+                selected={dateFrom}
+                onSelect={(d) => { setDateFrom(d); setPage(0); }}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn("w-[160px] justify-start text-left font-normal", !dateTo && "text-muted-foreground")}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateTo ? format(dateTo, "PP") : "End date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateTo}
+                onSelect={(d) => { setDateTo(d); setPage(0); }}
                 initialFocus
                 className="p-3 pointer-events-auto"
               />
