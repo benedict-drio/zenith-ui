@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const plans = [
   {
@@ -7,6 +8,8 @@ const plans = [
     price: "Free",
     description: "For indie builders getting started with Bitcoin payments.",
     features: ["Up to 100 transactions/mo", "Payment widget", "Basic dashboard", "Community support"],
+    cta: "Start Free",
+    ctaVariant: "outline" as const,
   },
   {
     name: "Pro",
@@ -15,6 +18,8 @@ const plans = [
     description: "For growing businesses that need full payment infrastructure.",
     features: ["Unlimited transactions", "Advanced analytics", "Refund management", "Priority support", "Custom branding"],
     highlighted: true,
+    cta: "Get Started",
+    ctaVariant: "default" as const,
   },
 ];
 
@@ -64,7 +69,7 @@ export function PricingSection() {
               <p className="text-sm text-muted-foreground mb-6">
                 {plan.description}
               </p>
-              <ul className="space-y-3 mt-auto">
+              <ul className="space-y-3 mb-8">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Check className="w-4 h-4 text-primary shrink-0" />
@@ -72,6 +77,12 @@ export function PricingSection() {
                   </li>
                 ))}
               </ul>
+              <Button
+                variant={plan.ctaVariant}
+                className={`mt-auto w-full ${plan.highlighted ? "gradient-bitcoin text-primary-foreground" : ""}`}
+              >
+                {plan.cta}
+              </Button>
             </motion.div>
           ))}
         </div>

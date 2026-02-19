@@ -61,13 +61,15 @@ export function NotificationDropdown() {
                 const config = typeConfig[notif.type];
                 const Icon = config.icon;
                 return (
-                    <div
+                    <button
                       key={notif.id}
+                      type="button"
                       onClick={() => !notif.read && markAsRead(notif.id)}
                       className={cn(
-                        "flex gap-3 px-4 py-3 transition-colors",
+                        "flex gap-3 px-4 py-3 transition-colors w-full text-left",
                         !notif.read && "bg-accent/50 cursor-pointer"
                     )}
+                      aria-label={`${notif.read ? "" : "Unread: "}${notif.title}`}
                   >
                     <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", config.className)} />
                     <div className="flex-1 min-w-0">
@@ -81,7 +83,7 @@ export function NotificationDropdown() {
                     <span className="text-[11px] text-muted-foreground whitespace-nowrap mt-0.5">
                       {notif.time}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
             </div>

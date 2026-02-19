@@ -1,11 +1,35 @@
 import { Bitcoin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const links = {
-  Product: ["Payment Widget", "Dashboard", "API Docs", "Pricing"],
-  Developers: ["Documentation", "GitHub", "SDK", "Changelog"],
-  Company: ["About", "Blog", "Careers", "Contact"],
-  Legal: ["Privacy", "Terms", "Security"],
+  Product: [
+    { label: "Payment Widget", href: "/demo" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "API Docs", href: "#" },
+    { label: "Pricing", href: "/#pricing" },
+  ],
+  Developers: [
+    { label: "Documentation", href: "#" },
+    { label: "GitHub", href: "#" },
+    { label: "SDK", href: "#" },
+    { label: "Changelog", href: "#" },
+  ],
+  Company: [
+    { label: "About", href: "#" },
+    { label: "Blog", href: "#" },
+    { label: "Careers", href: "#" },
+    { label: "Contact", href: "/#contact" },
+  ],
+  Legal: [
+    { label: "Privacy", href: "#" },
+    { label: "Terms", href: "#" },
+    { label: "Security", href: "#" },
+  ],
 };
+
+function isInternalRoute(href: string) {
+  return href.startsWith("/") && !href.startsWith("/#");
+}
 
 export function Footer() {
   return (
@@ -31,10 +55,16 @@ export function Footer() {
               <h4 className="text-sm font-semibold text-foreground mb-4">{category}</h4>
               <ul className="space-y-2.5">
                 {items.map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      {item}
-                    </a>
+                  <li key={item.label}>
+                    {isInternalRoute(item.href) ? (
+                      <Link to={item.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <a href={item.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                        {item.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

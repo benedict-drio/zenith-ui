@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { refunds, formatSats, formatBtc, type Refund, type RefundStatus } from "@/data/mockDashboard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { TableEmptyState } from "@/components/dashboard/TableEmptyState";
 
 const ROWS_PER_PAGE = 8;
 
@@ -53,6 +55,7 @@ function RefundStatusBadge({ status }: { status: RefundStatus }) {
 
 export default function Refunds() {
   const navigate = useNavigate();
+  useDocumentTitle("Refunds");
   const [statusFilter, setStatusFilter] = useState<"all" | RefundStatus>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
@@ -220,11 +223,13 @@ export default function Refunds() {
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">No refunds match the current filters.</TableCell>
+                  <TableCell colSpan={7}>
+                    <TableEmptyState title="No refunds found" description="Try adjusting your filters or search query." />
+                  </TableCell>
                 </TableRow>
               ) : (
                 paginated.map((r) => (
-                  <TableRow key={r.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => navigate(`/dashboard/invoices/${r.invoiceId}`)}>
+                  <TableRow key={r.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => navigate(`/dashboard/invoices/${r.invoiceId}`)} tabIndex={0} role="link" aria-label={`Refund ${r.id} — ${formatSats(r.amountSats)} sats — ${r.status}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(`/dashboard/invoices/${r.invoiceId}`); } }}>
                     <TableCell className="font-mono text-sm"><HighlightText text={r.id} query={search} /></TableCell>
                     <TableCell>
                       <span className="font-mono text-sm text-primary hover:underline"><HighlightText text={r.invoiceId} query={search} /></span>
