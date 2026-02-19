@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +16,24 @@ import { Separator } from "@/components/ui/separator";
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import type { Invoice } from "@/data/mockDashboard";
 import { formatSats, satsToBtc } from "@/data/mockDashboard";
+
+function CopyableValue({ text, children }: { text: string; children: React.ReactNode }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast("Copied to clipboard");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      {children}
+      <button onClick={handleCopy} aria-label="Copy to clipboard" className="text-muted-foreground hover:text-foreground transition-colors">
+        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+      </button>
+    </span>
+  );
+}
 
 interface PaymentDetailDialogProps {
   invoice: Invoice | null;
@@ -56,7 +76,7 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
 
         {/* Details Grid */}
         <div className="space-y-0.5">
-          <DetailRow label="Invoice ID" value={<span className="font-mono">{invoice.id}</span>} />
+          <DetailRow label="Invoice ID" value={<CopyableValue text={invoice.id}><span className="font-mono">{invoice.id}</span></CopyableValue>} />
           <DetailRow label="Customer" value={invoice.customer} />
           <DetailRow label="Memo" value={invoice.memo} />
           <DetailRow label="Reference" value={<span className="font-mono text-xs">{invoice.reference}</span>} />
@@ -66,7 +86,7 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
             label="Tx Hash"
             value={
               invoice.txHash ? (
-                <span className="font-mono text-xs text-primary">{invoice.txHash}</span>
+                <CopyableValue text={invoice.txHash}><span className="font-mono text-xs text-primary">{invoice.txHash}</span></CopyableValue>
               ) : (
                 <span className="text-muted-foreground">—</span>
               )
