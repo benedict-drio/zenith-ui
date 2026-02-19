@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, parseISO } from "date-fns";
-import { CalendarIcon, X, Bitcoin, Hash, TrendingUp } from "lucide-react";
+import { CalendarIcon, X, Bitcoin, Hash, TrendingUp, Download } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,6 +61,27 @@ export default function Payments() {
     setStatusFilter("all");
     setDateFilter(undefined);
     setPage(0);
+  };
+
+  const exportCsv = () => {
+    const headers = ["ID", "Customer", "Memo", "Amount (sats)", "Status", "Date", "Tx Hash"];
+    const rows = filtered.map((inv) => [
+      inv.id,
+      inv.customer,
+      inv.memo ?? "",
+      inv.amountPaidSats,
+      inv.status,
+      format(parseISO(inv.createdAt), "yyyy-MM-dd"),
+      inv.txHash ?? "",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `payments-export-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const hasFilters = statusFilter !== "all" || dateFilter !== undefined;
@@ -176,6 +197,10 @@ export default function Payments() {
               <X className="w-4 h-4 mr-1" /> Clear
             </Button>
           )}
+
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0} className="ml-auto">
+            <Download className="w-4 h-4 mr-1" /> Export CSV
+          </Button>
         </div>
 
         {/* Table */}
