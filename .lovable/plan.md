@@ -1,41 +1,47 @@
 
 
-# Add More Keyboard Shortcuts to Payment Detail Modal
+# Add Real-Time Search Highlighting in Payments Table
 
 ## Overview
-Extend the existing keyboard shortcut system with "V" to navigate to the full invoice detail page, and add a visual hint bar in the footer showing all available shortcuts.
+When the user types in the search box, matching text in the ID, Customer, and Memo columns will be visually highlighted with a colored background, making it easy to see why each row matched.
 
-## Changes
+## Approach
 
-### `src/components/dashboard/PaymentDetailDialog.tsx`
+### 1. Create a `HighlightText` helper component
+A small inline component (defined in `Payments.tsx` or a separate file) that takes `text` and `query` props. It splits the text on the search term (case-insensitive) and wraps matched segments in a `<mark>` styled with Tailwind classes like `bg-primary/20 text-primary rounded-sm px-0.5`.
 
-**1. Extend the `useEffect` handler to support "V":**
-- Add a check for `e.key.toLowerCase() === "v"` that closes the dialog and navigates to `/dashboard/invoices/{id}`.
+### 2. Apply highlighting to searchable columns
+In the table body, replace plain text rendering with the `HighlightText` component for columns that are searchable:
 
-```text
-Updated handler logic:
-  if key === "r" and status === "paid" -> open refund
-  if key === "v" -> close dialog, navigate to detail page
+- **ID column**: `<HighlightText text={inv.id} query={search} />`
+- **Customer column**: `<HighlightText text={inv.customer} query={search} />`
+- **Memo** (not currently displayed in table, so no change needed unless we add it)
+
+Non-searchable columns (Amount, Status, Date, Tx Hash) remain unchanged.
+
+### 3. No new dependencies
+Uses basic string splitting and React fragments -- no external library needed.
+
+## Technical Details
+
+**HighlightText component:**
+```tsx
+function HighlightText({ text, query }: { text: string; query: string }) {
+  if (!query.trim()) return <>{text}</>;
+  const regex = new RegExp(`(${escapeRegex(query)})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        regex.test(part)
+          ? <mark key={i} className="bg-primary/20 text-primary rounded-sm px-0.5">{part}</mark>
+          : part
+      )}
+    </>
+  );
+}
 ```
 
-**2. Update the footer hint text:**
-- Replace the single "Press R to refund" hint with a combined shortcut bar showing all available shortcuts.
-- For paid invoices: `R Refund · V Details · Esc Close`
-- For non-paid invoices: `V Details · Esc Close`
-- Styled with `text-xs text-muted-foreground`, hidden on mobile via `hidden sm:inline`.
-- Each shortcut key letter wrapped in a `<kbd>` style (e.g., a slightly bordered/bg span) for visual clarity.
+A small `escapeRegex` helper ensures special characters in the search string don't break the regex.
 
-### Footer Layout
-
-For paid transactions:
-```
-[Issue Refund]   R Refund · V Details · Esc Close     [View Full Details] [Close]
-```
-
-For other statuses:
-```
-V Details · Esc Close                                  [View Full Details] [Close]
-```
-
-### No new files or dependencies needed.
-
+**File changed:** `src/pages/Payments.tsx` only.
