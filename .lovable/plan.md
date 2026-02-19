@@ -1,64 +1,40 @@
 
-# Build Out the Payments Page
 
-Replace the placeholder Payments page with a full transaction history view including summary stats, a volume chart, filters, and a paginated table.
-
----
+# Add FAQ Accordion Section to Landing Page
 
 ## Overview
+Add a new `FAQSection` component below the `PricingSection` on the landing page, using the existing Radix accordion primitives and matching the landing page's animation and styling patterns.
 
-The page will have three sections stacked vertically:
-1. **Summary cards** -- 3 compact stat cards (Total Received, Total Transactions, Avg. Transaction Size)
-2. **Payment volume bar chart** -- daily payment volume for the last 7 days
-3. **Filterable transaction table** -- all paid/refunded invoices with status and date filters, plus pagination
+## New File: `src/components/landing/FAQSection.tsx`
 
-All data comes from the existing `mockDashboard.ts` -- no new data file needed. We derive "payments" by filtering invoices to those with `status === "paid"` or `status === "refunded"` (transactions that actually moved funds).
+A new component containing:
 
----
+- **Section heading** with the same `motion.div` fade-up pattern used in `FeaturesGrid` and `PricingSection`
+- **Title**: "Frequently Asked Questions" with a bitcoin-gradient highlighted word
+- **Subtitle**: Brief supporting text
 
-## Changes
+- **Accordion** using the existing `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` from `src/components/ui/accordion.tsx`
+  - Type: `"single"`, collapsible
+  - Max width constrained (`max-w-2xl mx-auto`) to keep readability
+  - Styled with `glass-card` wrapper to match the landing page aesthetic
 
-### 1. `src/data/mockDashboard.ts`
-- Add a new exported array `paymentVolume` with daily aggregated payment data (7 entries matching the existing revenue date range), used by the bar chart
-- Add a helper `formatBtc(sats)` that returns a shortened BTC string (e.g. "0.0025 BTC")
+- **FAQ items** (6 questions):
+  1. "What is sBTC and how does it work?" -- Explains sBTC as a 1:1 Bitcoin-backed asset on Stacks
+  2. "How fast are payment confirmations?" -- Covers Stacks block times and near-instant settlement
+  3. "What are the fees?" -- Reiterates the 0.5% fee, no hidden costs
+  4. "Do I need to KYC my customers?" -- Self-custody, no intermediary, merchant responsibility
+  5. "How do refunds work?" -- One-click refunds from the dashboard with audit trail
+  6. "How do I integrate SatsTerminal?" -- Embed the payment widget, API keys, documentation mention
 
-### 2. `src/pages/Payments.tsx` (full rewrite)
-Replace the placeholder with a complete page containing:
+- Each item wrapped in a `motion.div` with staggered entrance animation
 
-**Header** -- Title "Payments" with subtitle showing total count
+## Modified File: `src/pages/Index.tsx`
 
-**Summary Cards Row** (3 cards in a responsive grid)
-- Total Received (sum of `amountPaidSats` for paid invoices, shown in BTC)
-- Transactions (count of paid + refunded invoices)
-- Avg. Size (average `amountPaidSats`, shown in sats)
+- Import `FAQSection`
+- Add `<FAQSection />` between `<PricingSection />` and `<SocialProof />`
 
-Each card uses the existing `Card` component and a `motion.div` wrapper matching the dashboard animation pattern.
+## Technical Notes
+- No new dependencies -- uses existing `@radix-ui/react-accordion` components and `framer-motion`
+- Follows the exact same section layout pattern (container, px-6, py-32, centered heading) as the other landing sections
+- Accordion items use `border-border/50` styling to match the dark/light theme
 
-**Payment Volume Chart**
-- A `BarChart` (from recharts) inside `ChartContainer` showing daily payment volume
-- Uses the bitcoin orange color to match the existing `RevenueChart` style
-- Wrapped in `glass-card` with a heading, matching dashboard conventions
-
-**Filters Row**
-- **Status filter**: a `Select` dropdown with options: All, Paid, Refunded
-- **Date filter**: a date picker `Popover` with `Calendar` for selecting a single date to filter transactions on or after that date
-- A "Clear filters" button that resets both filters
-
-**Transaction Table**
-- Columns: Transaction ID (invoice id), Customer, Amount (sats), Status, Date, Tx Hash (truncated, shown on md+ screens)
-- Uses the existing `Table` components, `InvoiceStatusBadge`, and `formatSats`
-- Paginated at 8 rows per page with Previous/Next buttons
-- Each row is clickable, navigating to the invoice detail page
-- Empty state message when filters return no results
-
-All sections use `motion.div` with staggered delays (0, 0.1, 0.2, 0.3) matching the existing dashboard page animation style.
-
----
-
-## Technical Details
-
-- **Filtering logic**: `useState` for `statusFilter` ("all" | "paid" | "refunded") and `dateFilter` (Date | undefined). The invoice list is filtered with `useMemo` before pagination.
-- **Summary stats**: Computed with `useMemo` from the filtered (or full) paid/refunded invoice set.
-- **Components reused**: `Card`, `CardContent`, `CardHeader`, `CardTitle` for stat cards; `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem` for status filter; `Popover`, `PopoverTrigger`, `PopoverContent`, `Calendar`, `Button` for date picker; `Table` family and `InvoiceStatusBadge` for the table; `ChartContainer`, `ChartTooltip`, `ChartTooltipContent` for the chart.
-- **No new dependencies** -- everything uses existing recharts, radix, and framer-motion packages.
-- **Date filter** uses `date-fns` `format` and `isAfter`/`isSameDay` for comparison, both already installed.
