@@ -1,28 +1,39 @@
 
 
-# Add Memo/Description to Payments Search
+# Add Column Sorting to Payments Table
 
 ## Overview
-Extend the existing search filter on the Payments page to also match against the transaction memo field, so users can find payments by memo text in addition to customer name and invoice ID.
+Add clickable column headers to the Payments table so users can sort transactions by Amount, Date, or Status. Clicking a header toggles between ascending, descending, and no sort.
 
 ## Changes
 
 ### `src/pages/Payments.tsx`
 
-Update the search filter inside the `filtered` useMemo (around line 43) to also check `inv.memo`:
+1. **New state**: Add sort state to track which column is sorted and in which direction:
+   ```typescript
+   const [sortKey, setSortKey] = useState<"amount" | "date" | "status" | null>(null);
+   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+   ```
 
-```typescript
-list = list.filter((inv) =>
-  inv.customer.toLowerCase().includes(q) ||
-  inv.id.toLowerCase().includes(q) ||
-  (inv.memo && inv.memo.toLowerCase().includes(q))
-);
-```
+2. **Toggle function**: Add a `handleSort` function that cycles through asc -> desc -> clear when the same column is clicked, or sets asc when a new column is clicked.
 
-Update the search input placeholder to reflect the expanded scope:
-```
-"Search by customer, ID, or memo..."
-```
+3. **Sort logic**: After filtering in the `filtered` useMemo, apply sorting based on `sortKey` and `sortDir`:
+   - **amount**: Compare `inv.amountPaidSats` numerically
+   - **date**: Compare `inv.createdAt` as ISO date strings
+   - **status**: Compare `inv.status` alphabetically (paid before refunded, etc.)
 
-No new files, dependencies, or additional state needed.
+4. **Sortable column headers**: Replace the plain text in the Amount, Date, and Status `<TableHead>` cells with clickable elements that call `handleSort`. Add a sort direction indicator icon (ArrowUpDown from lucide-react when unsorted, ArrowUp/ArrowDown when sorted).
+
+5. **Clear filters**: Update `clearFilters` to also reset `sortKey` to `null`.
+
+6. **Imports**: Add `ArrowUpDown`, `ArrowUp`, `ArrowDown` icons from `lucide-react`.
+
+### UI Behavior
+- Sortable columns show a subtle sort icon next to the header text
+- Active sort column is visually highlighted with a directional arrow
+- Sorting resets pagination to page 1
+- Customer and ID columns remain unsortable (search covers those)
+- Tx Hash column remains unsortable
+
+No new files or dependencies needed.
 
