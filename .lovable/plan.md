@@ -1,25 +1,40 @@
 
 
-# Add Keyboard Shortcut Hint in Modal Footer
+# Add More Keyboard Shortcuts to Payment Detail Modal
 
 ## Overview
-Add a subtle hint text "Press R to refund" in the `DialogFooter` of `PaymentDetailDialog`, visible only for paid transactions.
+Extend the existing keyboard shortcut system with "V" to navigate to the full invoice detail page, and add a visual hint bar in the footer showing all available shortcuts.
 
 ## Changes
 
 ### `src/components/dashboard/PaymentDetailDialog.tsx`
 
-Add a small muted hint next to the "Issue Refund" button inside the conditional `invoice.status === "paid"` block in the footer:
+**1. Extend the `useEffect` handler to support "V":**
+- Add a check for `e.key.toLowerCase() === "v"` that closes the dialog and navigates to `/dashboard/invoices/{id}`.
 
-```
-<span className="text-xs text-muted-foreground hidden sm:inline">Press R to refund</span>
+```text
+Updated handler logic:
+  if key === "r" and status === "paid" -> open refund
+  if key === "v" -> close dialog, navigate to detail page
 ```
 
-This sits between the "Issue Refund" button and the right-side buttons, using `mr-auto` on a wrapper to keep it left-aligned with the refund button. Hidden on mobile (`hidden sm:inline`) to avoid cluttering small screens.
+**2. Update the footer hint text:**
+- Replace the single "Press R to refund" hint with a combined shortcut bar showing all available shortcuts.
+- For paid invoices: `R Refund · V Details · Esc Close`
+- For non-paid invoices: `V Details · Esc Close`
+- Styled with `text-xs text-muted-foreground`, hidden on mobile via `hidden sm:inline`.
+- Each shortcut key letter wrapped in a `<kbd>` style (e.g., a slightly bordered/bg span) for visual clarity.
 
-### Footer Layout (paid transactions)
+### Footer Layout
+
+For paid transactions:
 ```
-[Issue Refund]  Press R to refund          [View Full Details]  [Close]
+[Issue Refund]   R Refund · V Details · Esc Close     [View Full Details] [Close]
+```
+
+For other statuses:
+```
+V Details · Esc Close                                  [View Full Details] [Close]
 ```
 
 ### No new files or dependencies needed.
