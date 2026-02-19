@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const links = {
   Product: [
-    { label: "Payment Widget", href: "/demo" },
+    { label: "Payment Widget", href: "/pay" },
     { label: "Dashboard", href: "/dashboard" },
     { label: "API Docs", href: "#" },
     { label: "Pricing", href: "/#pricing" },
