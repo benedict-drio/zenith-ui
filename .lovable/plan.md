@@ -1,46 +1,48 @@
 
 
-# Add SVG Illustrations to Table Empty States
+# Update index.html with SatsTerminal Branding
 
 ## Overview
 
-Replace the current icon-in-a-box empty state with contextual SVG illustrations for each table (Invoices, Payments, Refunds). Each illustration will be inline SVG, themed with CSS variables so it adapts to light and dark modes.
+Replace all generic "Lovable App" metadata in `index.html` with proper SatsTerminal branding for SEO, social sharing, and browser identity.
 
-## What Changes
+## Changes (single file: `index.html`)
 
-### 1. Upgrade `TableEmptyState.tsx`
+### Title and Meta
+- **Title**: "SatsTerminal -- Bitcoin Payment Infrastructure"
+- **Description**: "Enterprise-grade Bitcoin payment processing dashboard. Accept Lightning and on-chain payments with real-time analytics, invoicing, and refund management."
+- **Author**: "SatsTerminal"
 
-Add an optional `variant` prop that selects a contextual SVG illustration:
+### OpenGraph Tags
+- `og:title`: "SatsTerminal -- Bitcoin Payment Infrastructure"
+- `og:description`: (same as meta description)
+- `og:type`: "website"
+- `og:url`: current published URL or preview URL
+- `og:image`: keep existing Lovable OG image for now (no custom image asset available)
+- `og:site_name`: "SatsTerminal"
 
-- **`search`** (default): A magnifying glass with dashed circle -- used when filters return no results
-- **`invoices`**: A document/receipt icon with a lightning bolt -- for empty invoice tables
-- **`payments`**: A wallet/arrows icon -- for empty payment tables
-- **`refunds`**: A circular arrow with a coin -- for empty refund tables
+### Twitter Card
+- `twitter:card`: "summary_large_image"
+- `twitter:title`: "SatsTerminal -- Bitcoin Payment Infrastructure"
+- `twitter:description`: (same as meta description)
+- `twitter:image`: keep existing image
 
-Each SVG will be ~80x80px, use `stroke="currentColor"` with `text-muted-foreground` and accent elements in `text-primary/40` (the orange brand color at low opacity), giving them a polished, branded feel without being heavy.
+### Favicon
+Since no custom favicon image has been provided, we will generate a simple branded SVG favicon inline (an orange Bitcoin-inspired lightning bolt on a dark background) and reference it as an SVG favicon. This works in all modern browsers.
 
-The component will also accept a `children` slot for an optional action button (e.g., "Clear filters").
+- Add a new file `public/favicon.svg` with a minimal branded icon (orange lightning bolt on dark rounded square)
+- Update `index.html` to reference `/favicon.svg` with `type="image/svg+xml"`
+- Keep the existing `favicon.ico` as a fallback
 
-### 2. Update Table Pages
-
-- **Invoices.tsx**: Add an empty state check (currently missing) for when `pageInvoices` is empty, using variant `invoices`
-- **Payments.tsx**: Switch from `TableEmptyState` with no variant to `variant="payments"`
-- **Refunds.tsx**: Switch to `variant="refunds"`
+### Theme Color
+- Add `<meta name="theme-color" content="#f97316">` for mobile browser chrome color (the orange brand color)
 
 ## Technical Details
 
-### Files Modified
-
 | File | Change |
 |------|--------|
-| `src/components/dashboard/TableEmptyState.tsx` | Add `variant` prop, 4 inline SVG illustrations, optional `children` slot |
-| `src/pages/Invoices.tsx` | Add empty state row when no invoices match, import `TableEmptyState` |
-| `src/pages/Payments.tsx` | Add `variant="payments"` to existing `TableEmptyState` |
-| `src/pages/Refunds.tsx` | Add `variant="refunds"` to existing `TableEmptyState` |
+| `index.html` | Update title, meta tags, OG tags, Twitter card, favicon link, theme-color |
+| `public/favicon.svg` | New file -- minimal SVG favicon with orange lightning bolt |
 
-### SVG Design Approach
+No dependencies added. No other files affected.
 
-- All SVGs are inline (no external files), ~15-20 lines each
-- Colors use Tailwind classes (`text-muted-foreground`, `text-primary`) so they adapt to both themes automatically
-- Subtle animation: a gentle `opacity` pulse on accent elements using Tailwind's `animate-pulse` at reduced intensity
-- No new dependencies required
