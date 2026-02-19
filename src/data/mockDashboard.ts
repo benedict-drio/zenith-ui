@@ -272,3 +272,86 @@ export function satsToBtc(sats: number): string {
 export function satsToUsd(sats: number, rate = 97500): string {
   return (sats / 100_000_000 * rate).toFixed(2);
 }
+
+export type RefundStatus = "processed" | "pending" | "failed";
+
+export interface Refund {
+  id: string;
+  invoiceId: string;
+  customer: string;
+  amountSats: number;
+  reason: string;
+  status: RefundStatus;
+  createdAt: string;
+  txHash?: string;
+}
+
+export const refunds: Refund[] = [
+  {
+    id: "RFD-001",
+    invoiceId: "INV-006",
+    customer: "Chain Analytics",
+    amountSats: 320000,
+    reason: "Service not delivered as agreed",
+    status: "processed",
+    createdAt: "2025-02-17T10:30:00Z",
+    txHash: "0x9a1b...f2c3",
+  },
+  {
+    id: "RFD-002",
+    invoiceId: "INV-001",
+    customer: "CryptoShop Pro",
+    amountSats: 125000,
+    reason: "Partial refund — downgraded plan",
+    status: "processed",
+    createdAt: "2025-02-19T14:00:00Z",
+    txHash: "0x4d5e...a6b7",
+  },
+  {
+    id: "RFD-003",
+    invoiceId: "INV-004",
+    customer: "DeFi Labs",
+    amountSats: 1000000,
+    reason: "Project cancelled by client",
+    status: "pending",
+    createdAt: "2025-02-19T09:45:00Z",
+  },
+  {
+    id: "RFD-004",
+    invoiceId: "INV-008",
+    customer: "Block Studios",
+    amountSats: 750000,
+    reason: "Duplicate payment",
+    status: "processed",
+    createdAt: "2025-02-16T15:20:00Z",
+    txHash: "0xbb12...cc98",
+  },
+  {
+    id: "RFD-005",
+    invoiceId: "INV-010",
+    customer: "Lightning Dev",
+    amountSats: 420000,
+    reason: "Scope reduction",
+    status: "failed",
+    createdAt: "2025-02-15T17:00:00Z",
+  },
+  {
+    id: "RFD-006",
+    invoiceId: "INV-012",
+    customer: "Token Forge",
+    amountSats: 500000,
+    reason: "Feature not yet available",
+    status: "pending",
+    createdAt: "2025-02-18T11:30:00Z",
+  },
+  {
+    id: "RFD-007",
+    invoiceId: "INV-003",
+    customer: "StacksPay",
+    amountSats: 75000,
+    reason: "Billing error",
+    status: "processed",
+    createdAt: "2025-02-18T16:45:00Z",
+    txHash: "0xe3f4...d5a6",
+  },
+];
