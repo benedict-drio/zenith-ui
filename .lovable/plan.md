@@ -1,150 +1,74 @@
 
 
-# SatsTerminal — Bitcoin Payment Infrastructure Frontend
+# Phase 3: Embeddable Payment Widget — All 4 States
 
-An enterprise-grade sBTC payment widget and merchant dashboard with a dark, Bitcoin-native aesthetic featuring Satoshi Orange accents, premium animations, and world-class UX.
-
----
-
-## Phase 1: Design System & Foundation
-
-### Custom Theme & Typography
-- Dark theme with Carbon Black surfaces and Satoshi Orange (`#F97316`) accent palette
-- Three font families: Inter (body), Space Grotesk (display/amounts), JetBrains Mono (addresses/code)
-- Full color system: orange primary, success green, warning yellow, error red, info blue
-- Custom gradients: `gradient-bitcoin`, `gradient-dark-glow`, `gradient-card`
-- Shadow & elevation system optimized for dark UI
-
-### Signature Animations
-- Bitcoin pulse animation for pending states (orange glow)
-- SVG checkmark draw animation for success states
-- Count-up number animation for amounts
-- Shimmer loading skeletons
-- Micro-interactions: hover lifts, focus glows, spring-physics toggles
-- Page transition animations with fade + scale
+Build a full-featured, standalone payment widget page (`/pay`) with four interactive states that users can click through, plus a dedicated showcase on the landing page.
 
 ---
 
-## Phase 2: Landing Page
+## New Files
 
-### Hero Section
-- Large headline: "Accept Bitcoin Payments in Seconds, Not Hours"
-- Subtext explaining sBTC on Stacks value proposition
-- Two CTAs: "Get Started" (gradient orange) and "View Demo" (ghost)
-- Live interactive payment widget demo on the right side
-- Subtle floating animation on hero elements with dark radial glow background
+### 1. `src/components/payment/PaymentWidget.tsx` — Main Widget Container
+- State machine managing 4 states: `compact` | `expanded` | `processing` | `success`
+- Shared header (merchant logo, name, invoice number) and footer ("Powered by SatsTerminal")
+- Shared amount display with sats/BTC/USD toggle (reuses existing pattern from PaymentWidgetDemo)
+- AnimatePresence wrapping each state panel for smooth transitions
 
-### Features Grid
-- 6 feature cards with icons: Instant Settlements, Secure Self-Custody, Low Fees (0.5%), Partial Payments, Built-in Refunds, Analytics Dashboard
-- Cards with glassmorphism effect, hover lift animations
-
-### Social Proof Section
-- "Trusted by Businesses on Stacks" with placeholder logos
-- Live stats counters (total volume, transactions, merchants) with count-up animation
-
-### Footer
-- Navigation links, social links, "Powered by Stacks" branding
-
----
-
-## Phase 3: Payment Widget (Embeddable Component)
-
-### Compact Mode
-- Merchant logo + name header
-- Large amount display (Space Grotesk, tabular numbers) with sats/BTC/USD toggle
+### 2. `src/components/payment/CompactState.tsx`
+- Large amount display with Space Grotesk font and unit toggle pills
 - Memo/order reference line
-- "Pay with sBTC" gradient orange CTA button
-- "Powered by SatsTerminal" footer
+- "Pay with sBTC" gradient orange CTA that transitions to expanded state
 
-### Expanded Payment Mode
-- QR code display with styled frame
-- Stacks address with truncation, copy button, and explorer link
-- Countdown timer for invoice expiry
-- "Connect Wallet & Pay" alternative button
+### 3. `src/components/payment/ExpandedState.tsx`
+- Styled QR code placeholder (CSS-drawn grid pattern inside an orange-bordered frame)
+- Stacks address with truncation + copy button + "View on Explorer" link
+- Countdown timer (mock, starts at 14:59, ticks down every second using useEffect)
+- "Connect Wallet & Pay" CTA button that transitions to processing state
+- "Back" text button to return to compact
 
-### Payment Processing State
-- 3-step progress stepper: Sent → Confirming → Done
-- Animated spinner with pulsing orange glow
-- Transaction hash display (truncated, linkable)
-- Confirmation counter (2/6 confirms) with filling dots
+### 4. `src/components/payment/ProcessingState.tsx`
+- 3-step horizontal progress stepper: Sent -> Confirming -> Done
+  - Each step: numbered circle + label, connected by lines
+  - Active step gets orange fill + bitcoin-pulse animation
+  - Completed steps get green checkmark
+- Animated spinner ring with pulsing orange glow (CSS animation)
+- Transaction hash display (truncated, monospace) with copy button
+- Confirmation counter "2 of 6 confirmations" with 6 dots that fill in sequentially
+- Auto-advances to success state after ~4 seconds (simulated)
 
-### Payment Success State
-- Animated checkmark (SVG path draw)
-- Success glow pulse effect
-- Amount received + invoice details
-- "View on Explorer" link + "Done" button
+### 5. `src/components/payment/SuccessState.tsx`
+- Large animated SVG checkmark using the existing `animate-draw-check` utility
+- Green success glow pulse ring behind the checkmark
+- "Payment Complete" heading with amount received
+- Invoice details summary (Invoice #, merchant, date)
+- "View on Explorer" outlined button + "Done" gradient orange button
+- Confetti-like particle burst on mount (small orange/green dots using framer-motion)
 
----
-
-## Phase 4: Merchant Dashboard
-
-### Sidebar Navigation
-- SatsTerminal logo + merchant switcher
-- Nav items: Dashboard, Invoices (with badge count), Payments, Refunds, Settings
-- Wallet connect status in footer
-- Collapsible on tablet, bottom nav on mobile
-
-### Dashboard Overview
-- Welcome header with merchant name
-- 4 stats cards: Total Volume, Active Invoices, Success Rate, Platform Fee
-- Trend indicators with percentage change
-- Revenue chart (area chart with orange gradient fill)
-- Recent invoices table with status badges
-
-### Invoice Management
-- Data table: Invoice ID, Customer/Memo, Amount, Status, Date
-- Sortable columns, pagination
-- Status badges: Pending (orange), Partial (yellow), Paid (green), Expired (gray), Cancelled (red), Refunded (blue)
-- Quick actions: View, Copy link, Refund
-
-### Invoice Creation
-- Slide-in form panel
-- Large amount input with real-time sats/BTC/USD conversion
-- Memo and Reference ID fields
-- Toggle options: Allow partial payments, Allow overpayment
-- Expiry duration selector
-- Cancel (ghost) + Create Invoice (gradient orange) buttons
-- Loading state on submit, success toast on completion
-
-### Invoice Detail View
-- Full invoice information with large amount display
-- Payment history timeline
-- QR code for sharing
-- Refund action (with confirmation dialog + backdrop blur)
-- Partial payment progress ring (SVG animated)
+### 6. `src/pages/PaymentDemo.tsx` — Standalone Demo Page
+- Centered layout with dark radial glow background
+- Renders `<PaymentWidget />` at full interactive capacity
+- Users can click through all 4 states in sequence
+- "Reset" button to start over
 
 ---
 
-## Phase 5: Settings & Polish
+## Modified Files
 
-### Settings Page
-- Merchant profile configuration
-- Payment preferences (default expiry, partial payments toggle)
-- Notification preferences
-- API keys display (masked, copyable)
+### 7. `src/App.tsx`
+- Add route: `/pay` pointing to `PaymentDemo` page
 
-### Responsive Design
-- Mobile: Full-screen payment modal, bottom navigation, FAB for new invoice, swipe gestures
-- Tablet: Two-column layout, collapsible sidebar
-- Desktop: Full sidebar, multi-panel layouts
-
-### Toast Notifications
-- Slide-in from bottom-right, stack up to 3
-- Auto-dismiss with progress bar (5s)
-- Variants: success (green), warning (orange), error (red), info (blue)
-
-### Empty States & Error Handling
-- Illustrated empty states for no invoices, no payments
-- Input validation with shake animation + red borders
-- Transaction error states with retry options
+### 8. `src/pages/Index.tsx`
+- Add a new "Payment Widget Showcase" section between SocialProof and Footer
+- Shows the widget in a browser-frame mockup with a "Try the Demo" link to `/pay`
 
 ---
 
-## Technical Notes
-- All pages are frontend-only with mock/demo data (no backend integration)
-- Uses React + TypeScript + Tailwind CSS
-- Recharts for dashboard charts
-- Lucide icons throughout
-- All amounts formatted with comma separators and unit toggles
-- Keyboard accessible with visible focus states (orange outline)
+## Technical Details
+
+- **State machine**: Simple useState with type `"compact" | "expanded" | "processing" | "success"`
+- **Timer**: useEffect with setInterval for the countdown in expanded state, cleared on unmount
+- **Auto-advance**: useEffect with setTimeout in processing state to simulate confirmation progression
+- **Animations**: Framer Motion for state transitions, CSS keyframes for pulse/draw-check/glow
+- **No external QR library**: QR code rendered as a styled placeholder grid (pure CSS) to avoid adding dependencies
+- **All mock data**: hardcoded invoice amounts, addresses, and transaction hashes
 
