@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, parseISO } from "date-fns";
-import { CalendarIcon, X, Bitcoin, Hash, TrendingUp, Download, Search } from "lucide-react";
+import { CalendarIcon, X, Bitcoin, Hash, TrendingUp, Download, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,6 +32,8 @@ export default function Payments() {
   const [dateFilter, setDateFilter] = useState<Date | undefined>();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
+  const [sortKey, setSortKey] = useState<"amount" | "date" | "status" | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const paymentInvoices = useMemo(
     () => invoices.filter((inv) => inv.status === "paid" || inv.status === "refunded"),
@@ -51,8 +53,17 @@ export default function Payments() {
         return isSameDay(d, dateFilter) || isAfter(d, dateFilter);
       });
     }
+    if (sortKey) {
+      list = [...list].sort((a, b) => {
+        let cmp = 0;
+        if (sortKey === "amount") cmp = a.amountPaidSats - b.amountPaidSats;
+        else if (sortKey === "date") cmp = a.createdAt.localeCompare(b.createdAt);
+        else if (sortKey === "status") cmp = a.status.localeCompare(b.status);
+        return sortDir === "desc" ? -cmp : cmp;
+      });
+    }
     return list;
-  }, [paymentInvoices, statusFilter, dateFilter, search]);
+  }, [paymentInvoices, statusFilter, dateFilter, search, sortKey, sortDir]);
 
   const stats = useMemo(() => {
     const totalReceived = paymentInvoices.reduce((s, inv) => s + inv.amountPaidSats, 0);
@@ -64,10 +75,28 @@ export default function Payments() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
   const paginated = filtered.slice(page * ROWS_PER_PAGE, (page + 1) * ROWS_PER_PAGE);
 
+  const handleSort = (key: "amount" | "date" | "status") => {
+    if (sortKey === key) {
+      if (sortDir === "asc") setSortDir("desc");
+      else { setSortKey(null); setSortDir("asc"); }
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+    setPage(0);
+  };
+
+  const SortIcon = ({ column }: { column: "amount" | "date" | "status" }) => {
+    if (sortKey !== column) return <ArrowUpDown className="w-3.5 h-3.5 ml-1 text-muted-foreground" />;
+    return sortDir === "asc" ? <ArrowUp className="w-3.5 h-3.5 ml-1" /> : <ArrowDown className="w-3.5 h-3.5 ml-1" />;
+  };
+
   const clearFilters = () => {
     setStatusFilter("all");
     setDateFilter(undefined);
     setSearch("");
+    setSortKey(null);
+    setSortDir("asc");
     setPage(0);
   };
 
@@ -230,9 +259,15 @@ export default function Payments() {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead className="text-right cursor-pointer select-none" onClick={() => handleSort("amount")}>
+                  <span className="inline-flex items-center justify-end w-full">Amount<SortIcon column="amount" /></span>
+                </TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => handleSort("status")}>
+                  <span className="inline-flex items-center">Status<SortIcon column="status" /></span>
+                </TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => handleSort("date")}>
+                  <span className="inline-flex items-center">Date<SortIcon column="date" /></span>
+                </TableHead>
                 <TableHead className="hidden md:table-cell">Tx Hash</TableHead>
               </TableRow>
             </TableHeader>
