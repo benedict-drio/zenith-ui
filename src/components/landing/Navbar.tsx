@@ -23,12 +23,20 @@ export function Navbar() {
   }, []);
 
   const handleNavClick = (link: typeof navLinks[0]) => {
+    const wasMobileOpen = mobileOpen;
     setMobileOpen(false);
     if (link.isRoute) {
       navigate(link.href);
     } else if (link.href.startsWith("#")) {
-      const el = document.getElementById(link.href.slice(1));
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      const scrollToEl = () => {
+        const el = document.getElementById(link.href.slice(1));
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      };
+      if (wasMobileOpen) {
+        setTimeout(scrollToEl, 300);
+      } else {
+        scrollToEl();
+      }
     }
   };
 
