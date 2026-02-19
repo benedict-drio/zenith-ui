@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "./NotificationDropdown";
+import { MobileBottomNav } from "./MobileBottomNav";
+import { FloatingActionButton } from "./FloatingActionButton";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function DashboardLayout() {
@@ -16,16 +18,24 @@ export function DashboardLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 border-b border-border flex items-center justify-between px-4 shrink-0 bg-background/80 backdrop-blur-sm sticky top-0 z-20">
             <div className="flex items-center gap-3">
-              <SidebarTrigger />
+              <div className="hidden md:block">
+                <SidebarTrigger />
+              </div>
             </div>
-            <ThemeToggle />
-            <NotificationDropdown />
-            <Button variant="outline" size="sm" className="gap-2">
-              <Wallet className="w-4 h-4" />
-              <span className="hidden sm:inline">Connect Wallet</span>
-            </Button>
+            <div className="flex items-center gap-1">
+              <div className="min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <ThemeToggle />
+              </div>
+              <div className="min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <NotificationDropdown />
+              </div>
+              <Button variant="outline" size="sm" className="gap-2 min-h-[44px]">
+                <Wallet className="w-4 h-4" />
+                <span className="hidden sm:inline">Connect Wallet</span>
+              </Button>
+            </div>
           </header>
-          <main className="flex-1 overflow-auto p-4 md:p-6">
+          <main className="flex-1 overflow-auto p-4 md:p-6 pb-20 md:pb-6">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
@@ -39,6 +49,8 @@ export function DashboardLayout() {
             </AnimatePresence>
           </main>
         </div>
+        <MobileBottomNav />
+        <FloatingActionButton />
       </div>
     </SidebarProvider>
   );
