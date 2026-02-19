@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, Copy, Check, RotateCcw } from "lucide-react";
@@ -54,6 +54,19 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDetailDialogProps) {
   const navigate = useNavigate();
   const [refundOpen, setRefundOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open || refundOpen || !invoice) return;
+    const handler = (e: KeyboardEvent) => {
+      const tag = (document.activeElement?.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea") return;
+      if (e.key.toLowerCase() === "r" && invoice.status === "paid") {
+        setRefundOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open, refundOpen, invoice]);
 
   if (!invoice) return null;
 
