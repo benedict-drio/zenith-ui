@@ -1,35 +1,26 @@
 
 
-# Add Keyboard Shortcuts to Payment Detail Modal
+# Add Keyboard Shortcut Hint in Modal Footer
 
 ## Overview
-Add keyboard shortcuts to the PaymentDetailDialog: Escape to close (already handled by Radix Dialog) and "R" to open the refund dialog for paid invoices.
+Add a subtle hint text "Press R to refund" in the `DialogFooter` of `PaymentDetailDialog`, visible only for paid transactions.
 
 ## Changes
 
 ### `src/components/dashboard/PaymentDetailDialog.tsx`
 
-1. **Add `useEffect`** import from React.
-2. **Add a `useEffect` hook** that listens for `keydown` events when the dialog is open:
-   - **"r" or "R" key**: If `invoice.status === "paid"` and no input/textarea is focused, call `setRefundOpen(true)`.
-   - **Escape** is already handled natively by the Radix Dialog primitive, so no additional code is needed for that.
-   - The effect depends on `open`, `invoice`, and `refundOpen` -- only attaches the listener when the dialog is open and the refund dialog is not already open.
-   - Includes a guard to skip the shortcut if the active element is an input or textarea (to avoid triggering while typing in the refund dialog).
+Add a small muted hint next to the "Issue Refund" button inside the conditional `invoice.status === "paid"` block in the footer:
 
-### Technical Details
-
-```text
-useEffect logic:
-  if (!open || refundOpen) return;   // only listen when detail modal is open and refund isn't
-
-  handler(e):
-    if activeElement is input/textarea -> return
-    if e.key === "r" or "R" and invoice.status === "paid" -> setRefundOpen(true)
-
-  addEventListener("keydown", handler)
-  return () => removeEventListener("keydown", handler)
+```
+<span className="text-xs text-muted-foreground hidden sm:inline">Press R to refund</span>
 ```
 
-### No new files or dependencies needed
-- Uses built-in `useEffect` and DOM `addEventListener`.
+This sits between the "Issue Refund" button and the right-side buttons, using `mr-auto` on a wrapper to keep it left-aligned with the refund button. Hidden on mobile (`hidden sm:inline`) to avoid cluttering small screens.
+
+### Footer Layout (paid transactions)
+```
+[Issue Refund]  Press R to refund          [View Full Details]  [Close]
+```
+
+### No new files or dependencies needed.
 
