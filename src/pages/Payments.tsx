@@ -42,7 +42,7 @@ export default function Payments() {
     let list = paymentInvoices;
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((inv) => inv.customer.toLowerCase().includes(q) || inv.id.toLowerCase().includes(q));
+      list = list.filter((inv) => inv.customer.toLowerCase().includes(q) || inv.id.toLowerCase().includes(q) || (inv.memo && inv.memo.toLowerCase().includes(q)));
     }
     if (statusFilter !== "all") list = list.filter((inv) => inv.status === statusFilter);
     if (dateFilter) {
@@ -174,7 +174,7 @@ export default function Payments() {
           <div className="relative w-[220px]">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by customer or ID..."
+              placeholder="Search by customer, ID, or memo..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               className="pl-9"
