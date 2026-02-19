@@ -1,28 +1,35 @@
 
 
-# Add Refund Button to Payment Detail Modal
+# Add Keyboard Shortcuts to Payment Detail Modal
 
 ## Overview
-Add a "Issue Refund" button inside the PaymentDetailDialog for transactions with "paid" status. Clicking it opens the existing RefundDialog.
+Add keyboard shortcuts to the PaymentDetailDialog: Escape to close (already handled by Radix Dialog) and "R" to open the refund dialog for paid invoices.
 
 ## Changes
 
 ### `src/components/dashboard/PaymentDetailDialog.tsx`
 
-1. **Import** `RefundDialog` from `@/components/dashboard/RefundDialog` and `RotateCcw` icon from `lucide-react`.
-2. **Add state**: `const [refundOpen, setRefundOpen] = useState(false);` inside the component.
-3. **Add refund button** in the `DialogFooter`, conditionally rendered when `invoice.status === "paid"`:
-   - Styled with `variant="outline"` and destructive color accents (matching the InvoiceDetail page pattern)
-   - Shows `RotateCcw` icon + "Issue Refund" text
-4. **Render `RefundDialog`** at the bottom of the component, passing `refundOpen`, `setRefundOpen`, `invoice.id`, and `invoice.amountSats`.
+1. **Add `useEffect`** import from React.
+2. **Add a `useEffect` hook** that listens for `keydown` events when the dialog is open:
+   - **"r" or "R" key**: If `invoice.status === "paid"` and no input/textarea is focused, call `setRefundOpen(true)`.
+   - **Escape** is already handled natively by the Radix Dialog primitive, so no additional code is needed for that.
+   - The effect depends on `open`, `invoice`, and `refundOpen` -- only attaches the listener when the dialog is open and the refund dialog is not already open.
+   - Includes a guard to skip the shortcut if the active element is an input or textarea (to avoid triggering while typing in the refund dialog).
 
-### Footer Layout (when status is "paid")
-```
-[Issue Refund]    [View Full Details]    [Close]
-```
+### Technical Details
 
-The refund button uses the same styling as the InvoiceDetail page: `border-destructive/30 text-destructive hover:bg-destructive/10`.
+```text
+useEffect logic:
+  if (!open || refundOpen) return;   // only listen when detail modal is open and refund isn't
+
+  handler(e):
+    if activeElement is input/textarea -> return
+    if e.key === "r" or "R" and invoice.status === "paid" -> setRefundOpen(true)
+
+  addEventListener("keydown", handler)
+  return () => removeEventListener("keydown", handler)
+```
 
 ### No new files or dependencies needed
-- Reuses existing `RefundDialog` component and `RotateCcw` icon already used in InvoiceDetail.
+- Uses built-in `useEffect` and DOM `addEventListener`.
 
