@@ -1,68 +1,70 @@
 
 
-# Mobile UX Improvements
+# Accessibility Improvements
 
 ## Overview
-Add three mobile-specific enhancements to the dashboard: a fixed bottom navigation bar (replacing the sidebar on small screens), a floating action button (FAB) for creating new invoices, and improved touch targets throughout.
+Add four accessibility enhancements across the application: skip navigation links, visible focus outlines on all interactive elements, ARIA labels on icon-only buttons, and reduced motion support for users who prefer it.
 
 ## Changes
 
-### 1. New Component: `src/components/dashboard/MobileBottomNav.tsx`
+### 1. Skip Link -- `src/index.css` + Layout files
 
-A fixed bottom navigation bar visible only on mobile (below `md` breakpoint):
+Add a visually-hidden "Skip to main content" link that becomes visible on focus, allowing keyboard users to bypass navigation.
 
-- Renders 5 icon buttons in a row: Dashboard, Invoices, Payments, Refunds, Settings
-- Uses the same `navItems` data (icons + routes) from the sidebar
-- Active route gets highlighted with the primary color
-- Shows the pending invoice badge on the Invoices icon
-- Fixed to the bottom of the screen with a frosted glass background (`bg-background/80 backdrop-blur-sm`)
-- Safe-area padding at the bottom for notched devices (`pb-[env(safe-area-inset-bottom)]`)
-- Each tap target is at least 44x44px for comfortable touch interaction
-- Hidden on `md:` and larger screens
+- Add a `.skip-link` CSS class: visually hidden by default, slides into view on `:focus` with a high z-index
+- Add the skip link in both `DashboardLayout.tsx` (dashboard pages) and `Index.tsx` (landing page)
+- The `<main>` element in `DashboardLayout.tsx` gets `id="main-content"`; the landing page's wrapper div gets the same ID
 
-### 2. New Component: `src/components/dashboard/FloatingActionButton.tsx`
+### 2. Focus Outlines -- `src/index.css`
 
-A circular FAB in the bottom-right corner (above the bottom nav on mobile):
+Add a global focus-visible style using a 2px orange (`hsl(25 95% 53%)`) outline on all interactive elements:
 
-- Shows a `+` icon; on tap opens the `CreateInvoiceSheet`
-- Gradient-bitcoin background, 56x56px with a drop shadow
-- Positioned `fixed bottom-20 right-4` on mobile (above bottom nav), `bottom-6 right-6` on desktop
-- Only visible on Invoices-related pages and Dashboard (or always visible -- simpler)
-- Uses `framer-motion` for a scale-in entrance animation
+- Target `a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])` with `:focus-visible`
+- Apply `outline: 2px solid hsl(25 95% 53%); outline-offset: 2px;`
+- Override the existing `ring` styles from shadcn/ui button variants to use the orange ring instead, or layer it so both work together
+- Only shows on keyboard navigation (`:focus-visible`), not mouse clicks
 
-### 3. Modified: `src/components/dashboard/DashboardLayout.tsx`
+### 3. ARIA Labels -- Multiple component files
 
-- Import and render `MobileBottomNav` below the `<main>` content area
-- Add bottom padding to `<main>` on mobile (`pb-20 md:pb-0`) so content isn't hidden behind the bottom nav
-- Hide the `SidebarTrigger` on mobile since the bottom nav replaces sidebar navigation
-- Render the `FloatingActionButton`
+Add `aria-label` attributes to every icon-only button that currently lacks one:
 
-### 4. Modified: `src/components/dashboard/DashboardSidebar.tsx`
+| File | Element | Label |
+|------|---------|-------|
+| `NotificationDropdown.tsx` | Bell button | "Notifications" |
+| `DashboardLayout.tsx` | Wallet button (mobile, icon-only) | "Connect Wallet" |
+| `Navbar.tsx` | Mobile menu toggle | "Open menu" / "Close menu" |
+| `Navbar.tsx` | Logo button | "SatsTerminal home" |
+| `DashboardSidebar.tsx` | Logo NavLink | "SatsTerminal dashboard" |
+| `MobileBottomNav.tsx` | Already has `aria-label` -- no change needed |
+| `FloatingActionButton.tsx` | Already has `aria-label` -- no change needed |
+| `ThemeToggle.tsx` | Already has `aria-label` -- no change needed |
 
-- Add `className="hidden md:flex"` to the `<Sidebar>` wrapper so it's completely hidden on mobile (the bottom nav takes over)
+### 4. Reduced Motion -- `src/index.css` + Component updates
 
-### 5. Touch Target Improvements
+Respect `prefers-reduced-motion: reduce` for users who have it enabled:
 
-In `DashboardLayout.tsx` header:
-- Increase header button sizes on mobile: ensure all icon buttons (ThemeToggle, NotificationDropdown, Wallet) have `min-h-[44px] min-w-[44px]` for touch compliance
+- Add a `@media (prefers-reduced-motion: reduce)` block in `index.css` that disables all custom animations (bitcoin-pulse, shimmer, float, draw-check, glow-pulse) by setting `animation: none !important` and `transition-duration: 0.01ms !important`
+- In `DashboardLayout.tsx`, use framer-motion's `useReducedMotion()` hook to conditionally skip page transition animations (set `initial`/`animate`/`exit` to empty objects)
+- In `FloatingActionButton.tsx`, skip the scale-in spring animation when reduced motion is preferred
 
 ---
 
 ## Technical Details
 
-### New Files
-- `src/components/dashboard/MobileBottomNav.tsx`
-- `src/components/dashboard/FloatingActionButton.tsx`
-
-### Modified Files
-- `src/components/dashboard/DashboardLayout.tsx` -- add bottom nav, FAB, bottom padding, hide sidebar trigger on mobile
-- `src/components/dashboard/DashboardSidebar.tsx` -- hide on mobile via className
+### Files Modified
+1. **`src/index.css`** -- add skip-link styles, global focus-visible outlines, and `prefers-reduced-motion` media query
+2. **`src/components/dashboard/DashboardLayout.tsx`** -- add skip link, `id="main-content"` on main, reduced motion for page transitions
+3. **`src/pages/Index.tsx`** -- add skip link and `id="main-content"` on wrapper
+4. **`src/components/landing/Navbar.tsx`** -- add aria-labels to logo and mobile menu toggle
+5. **`src/components/dashboard/NotificationDropdown.tsx`** -- add `aria-label="Notifications"` to bell button
+6. **`src/components/dashboard/DashboardSidebar.tsx`** -- add `aria-label` to logo link
+7. **`src/components/dashboard/FloatingActionButton.tsx`** -- respect reduced motion for spring animation
 
 ### Dependencies
-No new dependencies. Uses `useIsMobile` hook, `react-router-dom` `useLocation` and `NavLink`, `lucide-react` icons, `framer-motion`, and `CreateInvoiceSheet` (already exists).
+No new dependencies. `framer-motion` already provides `useReducedMotion()`.
 
 ### Key Patterns
-- Bottom nav uses `useLocation()` to determine active route and applies active styling
-- FAB manages its own `useState` for the `CreateInvoiceSheet` open state
-- All touch targets are minimum 44x44px per Apple/Google HIG guidelines
-- Bottom nav includes `safe-area-inset-bottom` for iPhone notch/home indicator support
+- Focus outlines use `:focus-visible` (not `:focus`) so they only appear during keyboard navigation
+- The orange color matches the brand primary (`hsl(25 95% 53%)`) for visual consistency
+- Skip link follows WCAG best practice: first focusable element in DOM, jumps to `#main-content`
+- Reduced motion uses both CSS (`prefers-reduced-motion`) and JS (`useReducedMotion`) to cover all animation types
