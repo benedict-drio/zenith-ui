@@ -1,92 +1,87 @@
 
 
-# Build Out the Settings Page
+# Build Out the Refunds Page
 
 ## Overview
-Replace the current placeholder Settings page with a fully functional settings panel containing four tabbed sections: API Keys, Webhooks, Branding/Theme, and Notification Preferences. All data will be stored in local state (no backend) with toast confirmations on save.
+Replace the current "coming soon" placeholder with a full refund management page featuring summary stats, a searchable/filterable refund history table, and the ability to view linked invoice details.
+
+## Data Layer
+
+Add mock refund data to `src/data/mockDashboard.ts`:
+
+- New `Refund` interface with fields: `id`, `invoiceId`, `customer`, `amountSats`, `reason`, `status` (processed | pending | failed), `createdAt`, `txHash`
+- A `refunds` array with 6-8 entries, linking back to existing invoice IDs where possible (e.g., INV-006 which is already "refunded")
+- New `RefundStatus` type: `"processed" | "pending" | "failed"`
 
 ## Page Structure
 
-The page uses a `Tabs` component with four tabs laid out horizontally at the top:
+Mirrors the Payments page layout for consistency:
 
 ```text
-[API Keys] [Webhooks] [Branding] [Notifications]
+[Page Header: icon + title + count]
+
+[3 Summary Cards: Total Refunded | Refund Count | Avg. Refund Size]
+
+[Filters: Search | Status dropdown | Date pickers | Clear | Export CSV]
+
+[Table: Refund ID | Linked Invoice | Customer | Amount | Status | Date | Tx Hash]
+
+[Pagination]
 ```
 
-Each tab contains a Card with form fields and a Save button.
+## Summary Cards (top row)
+- **Total Refunded** -- sum of all refund amounts, displayed in BTC format
+- **Refund Count** -- total number of refunds
+- **Avg. Refund Size** -- average refund in sats
 
----
+## Filters
+- **Search** -- filters by refund ID, invoice ID, or customer name (with search highlighting reused from Payments)
+- **Status dropdown** -- All / Processed / Pending / Failed
+- **Date range** -- From/To date pickers
+- **Clear filters** button when any filter is active
+- **Export CSV** button
 
-## Tab 1: API Keys
+## Table Columns
+| Column | Details |
+|--------|---------|
+| Refund ID | Mono font, e.g. `RFD-001` |
+| Invoice | Linked invoice ID as a clickable link navigating to `/dashboard/invoices/:id` |
+| Customer | Customer name |
+| Amount | Right-aligned, mono font, formatted sats |
+| Status | Color-coded badge (green for processed, yellow for pending, red for failed) |
+| Date | Formatted date |
+| Tx Hash | Mono, hidden on mobile |
 
-A card displaying:
-- **Live API Key** -- a read-only mono input with a masked value (e.g., `sk_live_••••••••••••a1b2`) and a Copy button (copies to clipboard, shows toast)
-- **Test API Key** -- same pattern with `sk_test_••••••••••••c3d4`
-- **Regenerate buttons** -- each key row has a secondary "Regenerate" button that shows an AlertDialog confirmation before replacing the masked key
-- A note: "Keep your API keys secret. Never expose them in client-side code."
+Clicking a row opens a toast or navigates to the linked invoice detail.
 
-## Tab 2: Webhooks
+## Pagination
+Same pattern as Payments: 8 rows per page, Previous/Next buttons, "Page X of Y" label.
 
-A card with:
-- **Webhook URL** -- an editable Input field, placeholder `https://yoursite.com/api/webhook`
-- **Events to listen for** -- a list of checkboxes:
-  - `payment.received`
-  - `payment.confirmed`
-  - `invoice.created`
-  - `invoice.expired`
-  - `refund.issued`
-- **Webhook Secret** -- read-only mono input with Copy button (e.g., `whsec_••••••••••••x9y8`)
-- **Save Webhook** button
-
-## Tab 3: Branding
-
-A card with:
-- **Store Name** -- editable Input, default "Demo Store"
-- **Primary Color** -- a color input (`<input type="color">`) defaulting to `#F97316` (Bitcoin orange)
-- **Theme** -- a radio group: "System", "Light", "Dark" (wired to the existing `next-themes` provider via `useTheme`)
-- **Logo URL** -- an Input for a URL, with a small preview thumbnail
-- **Save Branding** button
-
-## Tab 4: Notifications
-
-A card with Switch toggles for each notification category:
-- **Payment Received** -- default on
-- **Payment Confirmed** -- default on
-- **Invoice Created** -- default off
-- **Invoice Expired** -- default on
-- **Refund Issued** -- default on
-- **System Alerts** -- default on
-
-Each row shows a label, a short description, and a Switch on the right side. A "Save Preferences" button at the bottom.
+## Status Badges
+Add a `RefundStatusBadge` component (inline in the file or as a small component) with three variants:
+- **processed**: green dot + green background
+- **pending**: yellow/warning dot + yellow background  
+- **failed**: red/destructive dot + red background
 
 ---
 
 ## Technical Details
 
 ### Files Changed
-- **`src/pages/Settings.tsx`** -- complete rewrite from placeholder to full settings page
+1. **`src/data/mockDashboard.ts`** -- add `RefundStatus` type, `Refund` interface, and `refunds` mock array
+2. **`src/pages/Refunds.tsx`** -- complete rewrite from placeholder to full refunds page
 
-### Dependencies Used (already installed)
-- `@radix-ui/react-tabs` (Tabs, TabsList, TabsTrigger, TabsContent)
-- `@radix-ui/react-switch` (Switch)
-- `@radix-ui/react-checkbox` (Checkbox)
-- `@radix-ui/react-alert-dialog` (for regenerate key confirmation)
-- `lucide-react` icons: Key, Webhook, Palette, Bell, Copy, RefreshCw, Eye, EyeOff
-- `sonner` toast for save confirmations
-- `next-themes` useTheme for the branding theme selector
-- `framer-motion` for page entrance animation (matching existing pattern)
-- Card, CardHeader, CardTitle, CardDescription, CardContent from ui/card
-- Input, Label, Button, Separator, RadioGroup
+### Pattern Reuse
+- Reuses the same layout pattern as `Payments.tsx`: motion entrance animations, glass-card styling, filter bar, sortable table, pagination
+- Reuses `HighlightText` helper (copied inline or extracted to a shared util)
+- Reuses `formatSats`, `formatBtc` from mockDashboard
+- Reuses existing UI components: Card, Table, Button, Input, Select, Popover, Calendar, Badge
 
 ### State Management
-- All settings stored in `useState` hooks (local state only, no persistence beyond session)
-- Copy-to-clipboard uses `navigator.clipboard.writeText()` with toast feedback
-- Theme selection wired to existing `useTheme()` from next-themes
-- Save buttons show a success toast via `sonner`
+- `useState` for search, status filter, date range, sort key/direction, current page
+- `useMemo` for filtered/sorted/paginated list and summary stats
+- CSV export follows exact same pattern as Payments page
 
-### Layout Pattern
-- Page header with icon + title + description (consistent with other dashboard pages)
-- Tabs below the header, responsive -- stacks to scrollable horizontal on mobile
-- Each TabsContent contains a single Card with the form fields
-- Consistent spacing using the existing design system classes
+### Dependencies
+No new dependencies -- uses only what is already installed.
 
