@@ -1,41 +1,59 @@
 
-
-# Add Date Range Filter to Payments Page
+# Add Transaction Detail Modal to Payments Page
 
 ## Overview
-Replace the single date picker with a date range filter (From / To) so users can filter transactions between two dates.
+Replace the row-click navigation (`navigate("/dashboard/invoices/{id}")`) with an inline Dialog modal that shows full payment details without leaving the Payments page.
 
 ## Changes
 
-### `src/pages/Payments.tsx`
+### New file: `src/components/dashboard/PaymentDetailDialog.tsx`
 
-1. **Update state**: Replace `dateFilter` (single `Date | undefined`) with two states:
-   ```typescript
-   const [dateFrom, setDateFrom] = useState<Date | undefined>();
-   const [dateTo, setDateTo] = useState<Date | undefined>();
-   ```
+A reusable dialog component that receives an `Invoice` object and displays:
 
-2. **Update filter logic** in the `filtered` useMemo: Instead of checking `isSameDay || isAfter`, check that the transaction date falls within the range:
-   - If only `dateFrom` is set, show transactions on or after that date
-   - If only `dateTo` is set, show transactions on or before that date
-   - If both are set, show transactions within the range (inclusive)
+- **Header**: Amount in sats + BTC conversion, status badge
+- **Details grid**: Invoice ID, Customer, Memo, Reference, Created date, Expires date, Tx Hash (as a link)
+- **Payment timeline**: The event timeline from the invoice data (same as InvoiceDetail page)
+- **Footer**: "View Full Details" link to the invoice detail page, and a close button
 
-3. **Update UI**: Replace the single date picker button/popover with two side-by-side date pickers:
-   - "From" date picker with placeholder "Start date"
-   - "To" date picker with placeholder "End date"
-   - Both use the existing Calendar + Popover pattern with `pointer-events-auto`
+Uses existing `Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle` from `src/components/ui/dialog.tsx`, plus `InvoiceStatusBadge`, `formatSats`, `satsToBtc`.
 
-4. **Update `hasFilters`**: Check `dateFrom !== undefined || dateTo !== undefined` instead of `dateFilter !== undefined`.
+### Modified file: `src/pages/Payments.tsx`
 
-5. **Update `clearFilters`**: Reset both `dateFrom` and `dateTo` to `undefined`.
+1. **Add state**: `const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);`
+2. **Update row click**: Replace `onClick={() => navigate(...)}` with `onClick={() => setSelectedInvoice(inv)}`
+3. **Render dialog**: Add `<PaymentDetailDialog invoice={selectedInvoice} open={!!selectedInvoice} onOpenChange={(open) => !open && setSelectedInvoice(null)} />` at the bottom of the component
+4. **Import**: Add `PaymentDetailDialog` and `Invoice` type imports
 
-6. **Update `useMemo` dependencies**: Replace `dateFilter` with `dateFrom, dateTo`.
+### Dialog Layout
 
-### UI Layout
-- The two date pickers sit next to each other in the existing filter bar
-- Each is slightly narrower (around 160px) to fit both comfortably
-- "From" shows a CalendarIcon and the selected date or "Start date"
-- "To" shows a CalendarIcon and the selected date or "End date"
+```
++------------------------------------------+
+|  250,000 sats              [Paid] badge  |
+|  B 0.00250000                            |
++------------------------------------------+
+|  Invoice ID      INV-001                 |
+|  Customer        CryptoShop Pro          |
+|  Memo            Premium plan sub...     |
+|  Reference       REF-20250219-001        |
+|  Created         Feb 19, 2025 10:30 AM   |
+|  Expires         Feb 19, 2025 11:30 AM   |
+|  Tx Hash         0x8a3f...c4e2  [link]   |
++------------------------------------------+
+|  Payment Timeline                        |
+|  o Invoice Created        10:30 AM       |
+|  |                                       |
+|  o Payment Received       10:42 AM       |
+|  |  250,000 sats                         |
+|  o Confirmed              10:55 AM       |
+|     6/6 confirmations                    |
++------------------------------------------+
+|  [View Full Details]           [Close]   |
++------------------------------------------+
+```
 
-No new files or dependencies needed.
+### Technical Details
 
+- The dialog uses `max-w-lg` width with `max-h-[80vh] overflow-y-auto` for scrollability
+- Reuses existing UI components: `Dialog`, `InvoiceStatusBadge`, `Separator`
+- The "View Full Details" button navigates to `/dashboard/invoices/{id}` for users who want the full page view
+- No new dependencies required
