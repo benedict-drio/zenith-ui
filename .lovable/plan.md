@@ -1,27 +1,28 @@
 
-# Add Copy-to-Clipboard Buttons for Invoice ID and Tx Hash
+
+# Add Refund Button to Payment Detail Modal
 
 ## Overview
-Add small copy buttons next to the Invoice ID and Tx Hash fields in the PaymentDetailDialog. Clicking copies the value to clipboard and shows brief visual feedback (icon changes from Copy to Check).
+Add a "Issue Refund" button inside the PaymentDetailDialog for transactions with "paid" status. Clicking it opens the existing RefundDialog.
 
 ## Changes
 
 ### `src/components/dashboard/PaymentDetailDialog.tsx`
 
-1. **Import** `Copy` and `Check` icons from `lucide-react`, and `useState` from React.
-2. **Create a `CopyableValue` helper component** inside the file:
-   - Renders the value text alongside a small copy icon button
-   - On click, copies the text to clipboard via `navigator.clipboard.writeText()`
-   - Swaps the icon to a Check mark for 2 seconds, then reverts
-   - Uses `toast` from sonner for a "Copied!" confirmation
-3. **Update the Invoice ID row** (line 59): Wrap the value with `CopyableValue` passing `invoice.id`
-4. **Update the Tx Hash row** (lines 65-74): Wrap the value with `CopyableValue` passing `invoice.txHash` (only when txHash exists)
+1. **Import** `RefundDialog` from `@/components/dashboard/RefundDialog` and `RotateCcw` icon from `lucide-react`.
+2. **Add state**: `const [refundOpen, setRefundOpen] = useState(false);` inside the component.
+3. **Add refund button** in the `DialogFooter`, conditionally rendered when `invoice.status === "paid"`:
+   - Styled with `variant="outline"` and destructive color accents (matching the InvoiceDetail page pattern)
+   - Shows `RotateCcw` icon + "Issue Refund" text
+4. **Render `RefundDialog`** at the bottom of the component, passing `refundOpen`, `setRefundOpen`, `invoice.id`, and `invoice.amountSats`.
 
-### CopyableValue Component Behavior
-- Displays the text in its existing mono styling
-- Shows a small (14px) Copy icon button on the right, muted by default, darker on hover
-- On click: copies text, swaps to Check icon for 2 seconds, shows a sonner toast "Copied to clipboard"
-- Accessible: button has `aria-label="Copy to clipboard"`
+### Footer Layout (when status is "paid")
+```
+[Issue Refund]    [View Full Details]    [Close]
+```
+
+The refund button uses the same styling as the InvoiceDetail page: `border-destructive/30 text-destructive hover:bg-destructive/10`.
 
 ### No new files or dependencies needed
-- Uses existing `lucide-react` icons (Copy, Check) and `sonner` toast
+- Reuses existing `RefundDialog` component and `RotateCcw` icon already used in InvoiceDetail.
+
