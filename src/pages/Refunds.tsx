@@ -224,7 +224,7 @@ export default function Refunds() {
               {paginated.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7}>
-                    <TableEmptyState title="No refunds found" description="Try adjusting your filters or search query." />
+                    <TableEmptyState variant="refunds" title="No refunds found" description="Try adjusting your filters or search query." />
                   </TableCell>
                 </TableRow>
               ) : (
