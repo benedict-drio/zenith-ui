@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { PaymentWidgetDemo } from "./PaymentWidgetDemo";
 
 export function HeroSection() {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Background glow */}
@@ -39,7 +41,7 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-wrap gap-4 mt-10">
-              <button className="group px-8 py-4 rounded-xl gradient-bitcoin text-primary-foreground font-semibold text-base flex items-center gap-2 hover:brightness-110 transition-all shadow-glow">
+              <button onClick={() => navigate("/dashboard")} className="group px-8 py-4 rounded-xl gradient-bitcoin text-primary-foreground font-semibold text-base flex items-center gap-2 hover:brightness-110 transition-all shadow-glow">
                 Get Started
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
