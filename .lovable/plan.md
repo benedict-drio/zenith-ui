@@ -1,18 +1,22 @@
 
 
-# Click-to-Read Individual Notifications
+# CSV Export for Payments Page
 
 ## Overview
-Allow users to click on a single notification row to mark it as read, in addition to the existing "Mark all read" button.
+Add a "Export CSV" button to the Payments page filters bar that downloads the currently filtered transaction list as a CSV file.
 
-## Change
+## Changes
 
-**`src/components/dashboard/NotificationDropdown.tsx`**
+### `src/pages/Payments.tsx`
 
-- Add a `markAsRead(id: string)` handler that updates the notification's `read` field to `true` in local state.
-- Attach an `onClick` calling `markAsRead(notif.id)` to each notification row `<div>`.
-- Add `cursor-pointer` to unread notification rows so they look clickable.
-- Read notifications keep their current non-highlighted style and no pointer cursor (clicking them again is a no-op, which is fine).
+- Import `Download` icon from lucide-react.
+- Add an `exportCsv()` function that:
+  - Takes the current `filtered` array (respects active status/date filters).
+  - Builds CSV with headers: `ID, Customer, Memo, Amount (sats), Status, Date, Tx Hash`.
+  - Maps each invoice to a row, formatting the date as `YYYY-MM-DD`.
+  - Creates a Blob, generates an object URL, triggers a download via a temporary `<a>` element, then revokes the URL.
+  - Filename: `payments-export-YYYY-MM-DD.csv`.
+- Add an "Export CSV" `<Button>` (variant="outline", size="sm") with the `Download` icon, placed in the filters row after the Clear button. Disabled when `filtered.length === 0`.
 
-No other files need changes.
+No new files or dependencies needed.
 
