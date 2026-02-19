@@ -26,6 +26,9 @@ export function Navbar() {
     setMobileOpen(false);
     if (link.isRoute) {
       navigate(link.href);
+    } else if (link.href.startsWith("#")) {
+      const el = document.getElementById(link.href.slice(1));
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }
   };
 

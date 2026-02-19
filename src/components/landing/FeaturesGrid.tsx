@@ -46,7 +46,7 @@ const item = {
 
 export function FeaturesGrid() {
   return (
-    <section className="py-32 relative">
+    <section id="features" className="py-32 relative scroll-mt-20">
       <div className="absolute inset-0 gradient-dark-glow opacity-50" />
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
