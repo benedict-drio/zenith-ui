@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { InvoiceStatusBadge } from "@/components/dashboard/InvoiceStatusBadge";
 import { invoices, paymentVolume, formatSats, formatBtc } from "@/data/mockDashboard";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const ROWS_PER_PAGE = 8;
 
@@ -82,6 +83,9 @@ export default function Payments() {
     a.download = `payments-export-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success("CSV exported successfully", {
+      description: `${filtered.length} transaction${filtered.length === 1 ? "" : "s"} downloaded`,
+    });
   };
 
   const hasFilters = statusFilter !== "all" || dateFilter !== undefined;
