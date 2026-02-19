@@ -142,15 +142,18 @@ export function PaymentDetailDialog({ invoice, open, onOpenChange }: PaymentDeta
 
         <DialogFooter className="gap-2 sm:gap-0">
           {invoice.status === "paid" && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-destructive/30 text-destructive hover:bg-destructive/10 mr-auto"
-              onClick={() => setRefundOpen(true)}
-            >
-              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-              Issue Refund
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                onClick={() => setRefundOpen(true)}
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                Issue Refund
+              </Button>
+              <span className="text-xs text-muted-foreground hidden sm:inline mr-auto">Press R to refund</span>
+            </>
           )}
           <Button
             variant="outline"
