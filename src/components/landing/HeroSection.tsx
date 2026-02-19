@@ -6,7 +6,7 @@ import { PaymentWidgetDemo } from "./PaymentWidgetDemo";
 export function HeroSection() {
   const navigate = useNavigate();
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background glow */}
       <div className="absolute inset-0 gradient-dark-glow" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-[120px]" />
