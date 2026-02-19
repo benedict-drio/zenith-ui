@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useCountUp } from "@/hooks/useCountUp";
-import { Bitcoin, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 function StatCard({ value, suffix, label }: { value: number; suffix: string; label: string }) {
   const { count, ref } = useCountUp(value);
@@ -28,22 +28,14 @@ export function SocialProof() {
           Trusted by Businesses Building on Stacks
         </motion.p>
 
-        {/* Placeholder logos */}
-        <motion.div
+        <motion.p
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.3 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="flex flex-wrap items-center justify-center gap-10 mb-20"
+          className="text-center text-lg font-display font-medium text-muted-foreground/70 mb-20"
         >
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2 text-muted-foreground">
-              <Bitcoin className="w-5 h-5" />
-              <span className="font-display font-semibold text-sm">
-                {["StackSwap", "BitCommerce", "SatsPay", "ChainMart", "BlockShop"][i]}
-              </span>
-            </div>
-          ))}
-        </motion.div>
+          Built for teams like yours
+        </motion.p>
 
         {/* Stats */}
         <motion.div
