@@ -1,37 +1,29 @@
 
 
-# Navbar: Connect Wallet + Home Link + Disconnect
+# Gate Dashboard Behind Wallet Connection + Wire "View Demo"
 
 ## Overview
-Replace the "Get Started" CTA in the landing Navbar with a "Connect Wallet" button (with mock connect/disconnect state), and add a way to navigate home from the dashboard.
+Two changes: (1) The "Get Started" button in the hero should only navigate to the dashboard if the wallet is connected -- otherwise it triggers wallet connection first. (2) The "View Demo" button should scroll down to the WidgetShowcase section (or navigate to `/pay`) so it actually does something.
 
 ## Changes
 
-### 1. Create a shared wallet context (`src/contexts/WalletContext.tsx`)
-- A simple React context with `isConnected`, `connect()`, `disconnect()`, and a mock truncated address (e.g., `SP2J...X4WD`)
-- This lets both the landing Navbar and Dashboard header share wallet state
+### 1. HeroSection -- Gate "Get Started" behind wallet (`src/components/landing/HeroSection.tsx`)
+- Import `useWallet` from the wallet context
+- When "Get Started" is clicked:
+  - If wallet is connected: navigate to `/dashboard`
+  - If wallet is not connected: call `connect()`, then navigate to `/dashboard` after connection completes (or show a toast prompting to connect first)
+- Update "View Demo" button to scroll to the `#widget-showcase` section on the page (smooth scroll), giving it real functionality
 
-### 2. Update Landing Navbar (`src/components/landing/Navbar.tsx`)
-- Replace "Get Started" button (desktop + mobile) with a **Connect Wallet** / **Disconnect** button
-- When disconnected: show `Wallet` icon + "Connect Wallet" with the gradient-bitcoin style
-- When connected: show truncated address + a disconnect option (dropdown or click to disconnect)
-- The SatsTerminal logo already navigates to `/` -- no change needed there
+### 2. Dashboard route protection (`src/App.tsx` or new component)
+- Create a small `<ProtectedRoute>` wrapper component that checks `useWallet().isConnected`
+- If not connected, redirect to `/` (home) with a toast message like "Please connect your wallet first"
+- Wrap the `/dashboard` route's element with this guard so users can't access the dashboard directly via URL without connecting
 
-### 3. Update Dashboard header (`src/components/dashboard/DashboardLayout.tsx`)
-- Wire the existing "Connect Wallet" button to the shared wallet context
-- When connected: show truncated address + disconnect option
-- Add a **Home** icon/button in the header left side to navigate back to `/`
-
-### 4. Update Dashboard sidebar (`src/components/dashboard/DashboardSidebar.tsx`)
-- Wire the footer "Wallet Connected" indicator to the shared context so it reflects actual state
-- Make the SatsTerminal logo link to `/` (home) instead of `/dashboard`
-
-### 5. Wire context in App (`src/App.tsx`)
-- Wrap the app with `<WalletProvider>`
+### 3. Add id to WidgetShowcase section (`src/components/landing/WidgetShowcase.tsx`)
+- Add `id="widget-showcase"` to the section element so "View Demo" can scroll to it
 
 ## Technical Details
-- Wallet state is mock/local only (no real blockchain integration) -- just `useState` in the context
-- The connect action simulates a brief delay then sets connected with a fake address
-- Disconnect resets state immediately
-- Connected state shows a dropdown (using Radix DropdownMenu) with the address and a "Disconnect" option
+- The `ProtectedRoute` component will use `useWallet()` and `Navigate` from react-router-dom to redirect
+- "Get Started" click flow: if disconnected, call `connect()` -- since connect is async (mock 800ms delay), we can either navigate after connection or simply prompt the user to connect first and let them click again
+- Simpler approach chosen: if not connected, trigger `connect()` and show a toast "Connecting wallet..." -- once connected the user clicks again. The dashboard route guard ensures they can't bypass it.
 
