@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 export function WidgetShowcase() {
   return (
-    <section id="docs" className="py-24 px-4 relative overflow-hidden scroll-mt-20">
+    <section id="widget-showcase" className="py-24 px-4 relative overflow-hidden scroll-mt-20">
       <div className="absolute inset-0 gradient-dark-glow opacity-50" />
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-12">
