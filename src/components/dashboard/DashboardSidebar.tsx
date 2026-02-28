@@ -6,9 +6,11 @@ import {
   Settings,
   Zap,
   Wallet,
+  WalletCards,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { invoices } from "@/data/mockDashboard";
+import { useWallet } from "@/contexts/WalletContext";
 import {
   Sidebar,
   SidebarContent,
@@ -34,10 +36,11 @@ const navItems = [
 ];
 
 export function DashboardSidebar() {
+  const { isConnected } = useWallet();
   return (
     <Sidebar collapsible="icon" className="hidden md:flex">
       <SidebarHeader className="p-4">
-        <NavLink to="/dashboard" className="flex items-center gap-2" aria-label="SatsTerminal dashboard">
+        <NavLink to="/" className="flex items-center gap-2" aria-label="SatsTerminal home">
           <div className="w-8 h-8 rounded-lg gradient-bitcoin flex items-center justify-center shrink-0">
             <Zap className="w-4 h-4 text-primary-foreground" />
           </div>
@@ -80,12 +83,21 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-success/10 border border-success/20 group-data-[collapsible=icon]:justify-center">
-          <Wallet className="w-4 h-4 text-success shrink-0" />
-          <span className="text-xs font-medium text-success group-data-[collapsible=icon]:hidden">
-            Wallet Connected
-          </span>
-        </div>
+        {isConnected ? (
+          <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-success/10 border border-success/20 group-data-[collapsible=icon]:justify-center">
+            <Wallet className="w-4 h-4 text-success shrink-0" />
+            <span className="text-xs font-medium text-success group-data-[collapsible=icon]:hidden">
+              Wallet Connected
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted border border-border group-data-[collapsible=icon]:justify-center">
+            <WalletCards className="w-4 h-4 text-muted-foreground shrink-0" />
+            <span className="text-xs font-medium text-muted-foreground group-data-[collapsible=icon]:hidden">
+              No Wallet
+            </span>
+          </div>
+        )}
       </SidebarFooter>
     </Sidebar>
   );
