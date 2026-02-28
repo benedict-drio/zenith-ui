@@ -2,9 +2,26 @@ import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PaymentWidgetDemo } from "./PaymentWidgetDemo";
+import { useWallet } from "@/contexts/WalletContext";
+import { toast } from "@/hooks/use-toast";
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const { isConnected, connect, isConnecting } = useWallet();
+
+  const handleGetStarted = () => {
+    if (isConnected) {
+      navigate("/dashboard");
+    } else {
+      connect();
+      toast({ title: "Connecting wallet…", description: "Click again once connected." });
+    }
+  };
+
+  const handleViewDemo = () => {
+    document.getElementById("widget-showcase")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background glow */}
@@ -41,11 +58,11 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-wrap gap-4 mt-10">
-              <button onClick={() => navigate("/dashboard")} className="group px-8 py-4 rounded-xl gradient-bitcoin text-primary-foreground font-semibold text-base flex items-center gap-2 hover:brightness-110 transition-all shadow-glow">
-                Get Started
+              <button onClick={handleGetStarted} disabled={isConnecting} className="group px-8 py-4 rounded-xl gradient-bitcoin text-primary-foreground font-semibold text-base flex items-center gap-2 hover:brightness-110 transition-all shadow-glow disabled:opacity-70">
+                {isConnecting ? "Connecting…" : isConnected ? "Go to Dashboard" : "Get Started"}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button className="px-8 py-4 rounded-xl border border-border/60 text-foreground font-semibold text-base flex items-center gap-2 hover:bg-secondary/50 transition-all">
+              <button onClick={handleViewDemo} className="px-8 py-4 rounded-xl border border-border/60 text-foreground font-semibold text-base flex items-center gap-2 hover:bg-secondary/50 transition-all">
                 <Play className="w-4 h-4" />
                 View Demo
               </button>
